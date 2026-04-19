@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  grpc-stand:
+    build: .
+    container_name: grpc-hyperlab
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    environment:
+      PORT: 8080
+      GRPC_PORT: 50051

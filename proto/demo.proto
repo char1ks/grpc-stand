@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package demo;
+
+message DemoRequest {
+  string name = 1;
+  string text = 2;
+  int32 count = 3;
+  int64 startedAt = 4;
+}
+
+message DemoReply {
+  string protocol = 1;
+  string message = 2;
+  int64 timestamp = 3;
+  int32 bytes = 4;
+}
+
+service DemoService {
+  rpc UnaryHello (DemoRequest) returns (DemoReply);
+  rpc ServerStream (DemoRequest) returns (stream DemoReply);
+  rpc ClientStream (stream DemoRequest) returns (DemoReply);
+  rpc BidiStream (stream DemoRequest) returns (stream DemoReply);
+}

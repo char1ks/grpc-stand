@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gRPC HyperLab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="aurora"></div>
+  <header class="hero shell">
+    <div class="hero-copy">
+      <div class="eyebrow">gRPC HyperLab • Docker Edition</div>
+      <h1>Стенд по gRPC, <span>от которого реально отвисает челюсть</span></h1>
+      <p>
+        Теория, интерактив, сравнение протоколов, демонстрация HTTP/2, protobuf и всех режимов RPC —
+        в одном чёрно-бирюзовом интерфейсе.
+      </p>
+      <div class="hero-actions">
+        <button class="primary" onclick="scrollToSection('interactive')">Запустить демо</button>
+        <button class="secondary" onclick="scrollToSection('quiz')">Перейти к викторине</button>
+      </div>
+    </div>
+    <div class="hero-panel glass">
+      <div class="stat-grid">
+        <div><span>Unary</span><strong>1 → 1</strong></div>
+        <div><span>Server Stream</span><strong>1 → ∞</strong></div>
+        <div><span>Client Stream</span><strong>∞ → 1</strong></div>
+        <div><span>Bidi</span><strong>∞ ↔ ∞</strong></div>
+      </div>
+      <div class="signal-line"></div>
+      <p class="mini-note">gRPC использует HTTP/2 и Protocol Buffers, поэтому быстрее, строже и компактнее многих привычных API-схем.</p>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="section" id="concepts">
+      <div class="section-head">
+        <h2>1. Основные понятия и база</h2>
+        <p>Здесь студент сначала понимает термины, а потом уже трогает всё руками.</p>
+      </div>
+      <div id="theoryCards" class="card-grid"></div>
+    </section>
+
+    <section class="section" id="interactive">
+      <div class="section-head">
+        <h2>2. Живой интерактив</h2>
+        <p>Нажимай и смотри, как ведут себя разные виды вызовов и как они выглядят на практике.</p>
+      </div>
+      <div class="control-panel glass">
+        <div class="field">
+          <label>Имя студента</label>
+          <input id="studentName" value="Алексей" />
+        </div>
+        <div class="field field-wide">
+          <label>Полезная нагрузка</label>
+          <input id="payloadText" value="Покажи, как работает gRPC без боли" />
+        </div>
+      </div>
+
+      <div class="demo-grid">
+        <article class="glass demo-card">
+          <h3>Unary RPC</h3>
+          <p>Самый простой вход: один запрос — один ответ.</p>
+          <button class="primary" onclick="runUnary()">Запустить Unary</button>
+          <div id="unaryOutput" class="output"></div>
+        </article>
+        <article class="glass demo-card">
+          <h3>Server Streaming</h3>
+          <p>Один запрос и сразу несколько сообщений от сервера.</p>
+          <button class="primary" onclick="runServerStream()">Запустить поток</button>
+          <div id="serverStreamOutput" class="output"></div>
+        </article>
+        <article class="glass demo-card">
+          <h3>Client Streaming</h3>
+          <p>Клиент шлёт несколько сообщений, сервер собирает их в один итог.</p>
+          <button class="primary" onclick="runClientStream()">Отправить поток</button>
+          <div id="clientStreamOutput" class="output"></div>
+        </article>
+        <article class="glass demo-card">
+          <h3>Bidirectional Streaming</h3>
+          <p>Обе стороны обмениваются данными параллельно.</p>
+          <button class="primary" onclick="runBidi()">Запустить bidi</button>
+          <div id="bidiOutput" class="output"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="compare">
+      <div class="section-head">
+        <h2>3. Сравнение протоколов одним нажатием</h2>
+        <p>Показываем, где gRPC выигрывает, а где лучше подходят REST и WebSocket.</p>
+      </div>
+      <div class="compare-wrap glass">
+        <div class="compare-actions">
+          <button class="primary" onclick="runCompare()">Сравнить gRPC / REST / WebSocket</button>
+          <button class="secondary" onclick="runWsDemo()">Показать WebSocket realtime</button>
+        </div>
+        <div id="compareTable" class="compare-table"></div>
+        <div id="compareInsight" class="insight"></div>
+        <div id="wsOutput" class="output"></div>
+      </div>
+    </section>
+
+    <section class="section" id="meanings">
+      <div class="section-head">
+        <h2>4. Главные инженерные смыслы</h2>
+        <p>Не просто “что это”, а “зачем это в реальной архитектуре”.</p>
+      </div>
+      <div class="meaning-grid">
+        <div class="glass meaning"><h3>HTTP/2</h3><p>Постоянное соединение, стримы и мультиплексирование делают коммуникацию устойчивее и экономнее.</p></div>
+        <div class="glass meaning"><h3>Эффективность</h3><p>gRPC быстрее и компактнее за счёт бинарного формата и строгого контракта.</p></div>
+        <div class="glass meaning"><h3>Protobuf</h3><p>Меньше байтов, меньше двусмысленности, проще поддерживать совместимость.</p></div>
+        <div class="glass meaning"><h3>Контракты</h3><p>.proto-файлы задают формальный интерфейс — это важно для микросервисов и командной разработки.</p></div>
+        <div class="glass meaning"><h3>Типы RPC</h3><p>Разные форматы вызова закрывают разные продуктовые сценарии: от CRUD до realtime-потоков.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="quiz">
+      <div class="section-head">
+        <h2>5. Финальная викторина</h2>
+        <p>Студент проходит мини-проверку, а потом отправляет ответы преподавателю в ЛС.</p>
+      </div>
+      <div class="glass quiz-box">
+        <div id="quizQuestions"></div>
+        <button class="primary" onclick="checkQuiz()">Проверить ответы</button>
+        <div id="quizResult" class="output"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
