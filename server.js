@@ -256,7 +256,7 @@ app.post('/api/quiz/check', (req, res) => {
     score,
     total: quizQuestions.length,
     results,
-    message: `Набрано ${score}/${quizQuestions.length}. Отправь преподавателю скрин этого блока и свои ответы в ЛС.`,
+    message: `Набрано ${score}/${quizQuestions.length}.`,
   });
 });
 

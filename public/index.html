@@ -14,14 +14,13 @@
   <header class="hero shell">
     <div class="hero-copy">
       <div class="eyebrow">gRPC HyperLab • Docker Edition</div>
-      <h1>Стенд по gRPC, <span>от которого реально отвисает челюсть</span></h1>
+      <h1>Стенд по gRPC, <span>который объясняет сложное красиво и наглядно</span></h1>
       <p>
-        Теория, интерактив, сравнение протоколов, демонстрация HTTP/2, protobuf и всех режимов RPC —
-        в одном чёрно-бирюзовом интерфейсе.
+        Сначала база, потом живые сценарии, потом сравнение протоколов. И только после полного прохождения — финальная викторина.
       </p>
       <div class="hero-actions">
-        <button class="primary" onclick="scrollToSection('interactive')">Запустить демо</button>
-        <button class="secondary" onclick="scrollToSection('quiz')">Перейти к викторине</button>
+        <button class="primary" onclick="scrollToSection('interactive')">Перейти к интерактиву</button>
+        <button class="secondary" onclick="scrollToSection('compare')">Сравнить протоколы</button>
       </div>
     </div>
     <div class="hero-panel glass">
@@ -40,7 +39,7 @@
     <section class="section" id="concepts">
       <div class="section-head">
         <h2>1. Основные понятия и база</h2>
-        <p>Здесь студент сначала понимает термины, а потом уже трогает всё руками.</p>
+        <p>Сначала студент понимает термины, затем видит их в действии.</p>
       </div>
       <div id="theoryCards" class="card-grid"></div>
     </section>
@@ -48,43 +47,61 @@
     <section class="section" id="interactive">
       <div class="section-head">
         <h2>2. Живой интерактив</h2>
-        <p>Нажимай и смотри, как ведут себя разные виды вызовов и как они выглядят на практике.</p>
+        <p>Каждая карточка показывает: что делает клиент, что делает сервер и какой итог получает студент.</p>
       </div>
+
       <div class="control-panel glass">
         <div class="field">
           <label>Имя студента</label>
           <input id="studentName" value="Алексей" />
         </div>
         <div class="field field-wide">
-          <label>Полезная нагрузка</label>
+          <label>Текст запроса</label>
           <input id="payloadText" value="Покажи, как работает gRPC без боли" />
         </div>
       </div>
 
+      <div class="progress-strip glass" id="interactiveProgress"></div>
+
       <div class="demo-grid">
         <article class="glass demo-card">
-          <h3>Unary RPC</h3>
-          <p>Самый простой вход: один запрос — один ответ.</p>
+          <div class="demo-topline">
+            <span class="demo-type">Unary RPC</span>
+            <span class="demo-flow">1 запрос → 1 ответ</span>
+          </div>
+          <p>Самый простой сценарий. Удобно начать именно с него.</p>
           <button class="primary" onclick="runUnary()">Запустить Unary</button>
-          <div id="unaryOutput" class="output"></div>
+          <div id="unaryOutput" class="visual-output"></div>
         </article>
+
         <article class="glass demo-card">
-          <h3>Server Streaming</h3>
-          <p>Один запрос и сразу несколько сообщений от сервера.</p>
+          <div class="demo-topline">
+            <span class="demo-type">Server Streaming</span>
+            <span class="demo-flow">1 запрос → серия ответов</span>
+          </div>
+          <p>Клиент спрашивает один раз, сервер отдаёт несколько сообщений по одному соединению.</p>
           <button class="primary" onclick="runServerStream()">Запустить поток</button>
-          <div id="serverStreamOutput" class="output"></div>
+          <div id="serverStreamOutput" class="visual-output"></div>
         </article>
+
         <article class="glass demo-card">
-          <h3>Client Streaming</h3>
-          <p>Клиент шлёт несколько сообщений, сервер собирает их в один итог.</p>
+          <div class="demo-topline">
+            <span class="demo-type">Client Streaming</span>
+            <span class="demo-flow">серия запросов → 1 итог</span>
+          </div>
+          <p>Клиент отправляет несколько кусков данных, сервер собирает их в один результат.</p>
           <button class="primary" onclick="runClientStream()">Отправить поток</button>
-          <div id="clientStreamOutput" class="output"></div>
+          <div id="clientStreamOutput" class="visual-output"></div>
         </article>
+
         <article class="glass demo-card">
-          <h3>Bidirectional Streaming</h3>
-          <p>Обе стороны обмениваются данными параллельно.</p>
+          <div class="demo-topline">
+            <span class="demo-type">Bidirectional Streaming</span>
+            <span class="demo-flow">обмен в обе стороны</span>
+          </div>
+          <p>Клиент и сервер обмениваются сообщениями параллельно в реальном времени.</p>
           <button class="primary" onclick="runBidi()">Запустить bidi</button>
-          <div id="bidiOutput" class="output"></div>
+          <div id="bidiOutput" class="visual-output"></div>
         </article>
       </div>
     </section>
@@ -92,14 +109,18 @@
     <section class="section" id="compare">
       <div class="section-head">
         <h2>3. Сравнение протоколов одним нажатием</h2>
-        <p>Показываем, где gRPC выигрывает, а где лучше подходят REST и WebSocket.</p>
+        <p>Один клик — и студент видит, когда нужен gRPC, когда достаточно REST, а когда важен WebSocket.</p>
       </div>
       <div class="compare-wrap glass">
         <div class="compare-actions">
           <button class="primary" onclick="runCompare()">Сравнить gRPC / REST / WebSocket</button>
           <button class="secondary" onclick="runWsDemo()">Показать WebSocket realtime</button>
         </div>
-        <div id="compareTable" class="compare-table"></div>
+        <div id="compareTable" class="compare-table compare-placeholder">
+          <div class="placeholder-panel">
+            Сначала запусти сравнение, чтобы увидеть разницу по транспорту, контрактам, размеру сообщения и типичным сценариям.
+          </div>
+        </div>
         <div id="compareInsight" class="insight"></div>
         <div id="wsOutput" class="output"></div>
       </div>
@@ -119,10 +140,9 @@
       </div>
     </section>
 
-    <section class="section" id="quiz">
+    <section class="section hidden" id="quizSection">
       <div class="section-head">
         <h2>5. Финальная викторина</h2>
-        <p>Студент проходит мини-проверку, а потом отправляет ответы преподавателю в ЛС.</p>
       </div>
       <div class="glass quiz-box">
         <div id="quizQuestions"></div>
@@ -131,6 +151,8 @@
       </div>
     </section>
   </main>
+
+  <div id="unlockToast" class="unlock-toast hidden">Викторина открыта. Ты прошёл весь интерактив и сравнение.</div>
 
   <script src="/app.js"></script>
 </body>
