@@ -43,22 +43,22 @@ function buildProtoInspection(sample = DEFAULT_SAMPLE) {
     protobufBytes: encoded.length,
     jsonBytes: Buffer.byteLength(JSON.stringify(sample), 'utf8'),
     hex: [
-      { hex: hex[0], meaning: 'field 1 tag' },
-      { hex: hex[1], meaning: 'name length' },
+      { hex: hex[0], meaning: 'тег поля 1' },
+      { hex: hex[1], meaning: 'длина name' },
       { hex: hex.slice(2, 2 + sample.name.length).join(' '), meaning: `name = "${sample.name}"` },
-      { hex: hex[2 + sample.name.length], meaning: 'field 2 tag' },
-      { hex: hex[3 + sample.name.length], meaning: 'text length' },
+      { hex: hex[2 + sample.name.length], meaning: 'тег поля 2' },
+      { hex: hex[3 + sample.name.length], meaning: 'длина text' },
       { hex: hex.slice(4 + sample.name.length, 4 + sample.name.length + sample.text.length).join(' '), meaning: `text = "${sample.text}"` },
     ],
     breakdown: [
-      { hex: '0a', field: 'name tag', explanation: 'Field #1 with wire type 2 = length-delimited string.' },
-      { hex: sample.name.length.toString(16).padStart(2, '0'), field: 'name length', explanation: `Next ${sample.name.length} bytes belong to the string value.` },
-      { hex: toHexArray(Buffer.from(sample.name, 'utf8')).join(' '), field: 'name value', explanation: `UTF-8 bytes of the string "${sample.name}".` },
-      { hex: '12', field: 'text tag', explanation: 'Field #2 with wire type 2 = another length-delimited string.' },
-      { hex: sample.text.length.toString(16).padStart(2, '0'), field: 'text length', explanation: `Next ${sample.text.length} bytes belong to the text payload.` },
-      { hex: toHexArray(Buffer.from(sample.text, 'utf8')).join(' '), field: 'text value', explanation: `UTF-8 bytes of the string "${sample.text}".` },
-      { hex: '18 03', field: 'count', explanation: 'Field #3, varint value = 3.' },
-      { hex: '20 b9 0a', field: 'startedAt', explanation: 'Field #4, varint value = 1337.' },
+      { hex: '0a', field: 'тег name', explanation: 'Поле №1, wire type 2: строка с указанием длины.' },
+      { hex: sample.name.length.toString(16).padStart(2, '0'), field: 'длина name', explanation: `Следующие ${sample.name.length} байт относятся к строке name.` },
+      { hex: toHexArray(Buffer.from(sample.name, 'utf8')).join(' '), field: 'значение name', explanation: `UTF-8 байты строки "${sample.name}".` },
+      { hex: '12', field: 'тег text', explanation: 'Поле №2, wire type 2: ещё одна строка с длиной.' },
+      { hex: sample.text.length.toString(16).padStart(2, '0'), field: 'длина text', explanation: `Следующие ${sample.text.length} байт относятся к полю text.` },
+      { hex: toHexArray(Buffer.from(sample.text, 'utf8')).join(' '), field: 'значение text', explanation: `UTF-8 байты строки "${sample.text}".` },
+      { hex: '18 03', field: 'count', explanation: 'Поле №3, varint, значение = 3.' },
+      { hex: '20 b9 0a', field: 'startedAt', explanation: 'Поле №4, varint, значение = 1337.' },
     ],
   };
 }
@@ -68,7 +68,7 @@ function unaryHello(call, callback) {
   const bytes = DemoRequestType.encode(DemoRequestType.create(request)).finish().length;
   callback(null, {
     protocol: 'gRPC / Unary',
-    message: `Hello, ${request.name || 'student'}! Server received: "${request.text}"`,
+    message: `Привет, ${request.name || 'студент'}! Сервер получил: "${request.text}"`,
     timestamp: Date.now(),
     bytes,
   });
@@ -77,10 +77,10 @@ function unaryHello(call, callback) {
 function serverStream(call) {
   const request = call.request;
   const steps = [
-    `Server accepted one request from ${request.name || 'student'}.`,
-    'The stream stays open over HTTP/2 instead of reconnecting for every update.',
-    `The server can push partial progress for: ${request.text || 'streaming demo'}.`,
-    'The stream closes only after the final update is sent.',
+    `Сервер принял один запрос от ${request.name || 'студент'}.`,
+    'Поток остаётся открытым поверх HTTP/2, поэтому не нужно заново подключаться для каждого ответа.',
+    `Сервер может отправлять частичные обновления по задаче: ${request.text || 'demo'}.`,
+    'Поток закрывается только после финального сообщения.',
   ];
 
   let index = 0;
@@ -115,7 +115,7 @@ function clientStream(call, callback) {
     const joined = chunks.join(' | ');
     callback(null, {
       protocol: 'gRPC / Client Streaming',
-      message: `Server received ${chunks.length} chunks and merged them into: ${joined}`,
+      message: `Сервер получил ${chunks.length} части и собрал их в один итог: ${joined}`,
       timestamp: Date.now(),
       bytes: Buffer.byteLength(joined, 'utf8'),
       meta: JSON.stringify({ chunkBytes }),
@@ -126,7 +126,7 @@ function clientStream(call, callback) {
 function bidiStream(call) {
   call.on('data', (item) => {
     const text = item.text || 'empty';
-    const message = `Server answered immediately to: ${text}`;
+    const message = `Сервер сразу ответил на: ${text}`;
     call.write({
       protocol: 'gRPC / Bidirectional Streaming',
       message,
@@ -148,7 +148,7 @@ function startGrpcServer() {
   server.bindAsync(`0.0.0.0:${GRPC_PORT}`, grpc.ServerCredentials.createInsecure(), (error) => {
     if (error) throw error;
     server.start();
-    console.log(`gRPC server started on ${GRPC_PORT}`);
+    console.log(`gRPC сервер запущен на ${GRPC_PORT}`);
   });
 }
 
@@ -163,12 +163,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api/theory', (_req, res) => {
   res.json({
     cards: [
-      { title: 'Unary RPC', text: 'One request and one response. The simplest RPC pattern and the best first step.' },
-      { title: 'Server Streaming', text: 'One request and many responses. Perfect when updates should keep arriving from the server.' },
-      { title: 'Client Streaming', text: 'Many incoming client messages and one final server result.' },
-      { title: 'Bidirectional Streaming', text: 'Both sides stay active at once and exchange messages in parallel.' },
-      { title: 'HTTP/2', text: 'The transport base for gRPC: streams, multiplexing, headers, and one long-lived connection.' },
-      { title: 'Protocol Buffers', text: 'A strict message contract and compact binary serialization instead of a heavier text payload.' },
+      { title: 'Unary RPC', text: 'Один запрос и один ответ. Самый простой режим и лучший вход в тему.' },
+      { title: 'Server Streaming', text: 'Один запрос и несколько ответов. Подходит, когда сервер должен присылать обновления по ходу работы.' },
+      { title: 'Client Streaming', text: 'Несколько сообщений от клиента и один итоговый ответ от сервера.' },
+      { title: 'Bidirectional Streaming', text: 'Обе стороны активны одновременно и обмениваются сообщениями параллельно.' },
+      { title: 'HTTP/2', text: 'Транспортная основа gRPC: потоки, multiplexing и одно долгое соединение.' },
+      { title: 'Protocol Buffers', text: 'Строгий контракт сообщений и компактная бинарная сериализация вместо более тяжёлого текстового payload.' },
     ],
   });
 });
@@ -181,7 +181,7 @@ app.post('/api/rest/unary', (req, res) => {
   const payload = req.body || {};
   res.json({
     protocol: 'REST / JSON',
-    message: `REST received "${payload.text || ''}" from ${payload.name || 'student'}`,
+    message: `REST получил "${payload.text || ''}" от ${payload.name || 'студент'}`,
     timestamp: Date.now(),
     bytes: Buffer.byteLength(JSON.stringify(payload), 'utf8'),
   });
@@ -189,8 +189,8 @@ app.post('/api/rest/unary', (req, res) => {
 
 app.post('/api/compare', async (req, res) => {
   const payload = {
-    name: req.body?.name || 'Alex',
-    text: req.body?.text || 'Show how gRPC works without pain',
+    name: req.body?.name || 'Алексей',
+    text: req.body?.text || 'Покажи, как работает gRPC без боли',
     count: Number(req.body?.count || 3),
     startedAt: Date.now(),
   };
@@ -208,7 +208,6 @@ app.post('/api/compare', async (req, res) => {
     });
   });
   const grpcMs = Number(process.hrtime.bigint() - grpcStart) / 1e6;
-
   const restStart = process.hrtime.bigint();
   const restMs = Number(process.hrtime.bigint() - restStart) / 1e6;
 
@@ -228,13 +227,13 @@ app.post('/api/compare', async (req, res) => {
       latencyMs: restMs.toFixed(2),
       bytes: jsonBytes,
       transport: 'HTTP/1.1 + JSON',
-      contract: 'JSON schema by convention',
+      contract: 'JSON по договорённости',
     },
     websocket: {
-      latencyMs: 'persistent',
+      latencyMs: 'постоянное соединение',
       bytes: jsonBytes,
       transport: 'WebSocket',
-      contract: 'custom JSON message',
+      contract: 'кастомное JSON-сообщение',
     },
     compactness: {
       protobufBytes,
@@ -248,10 +247,10 @@ app.post('/api/compare', async (req, res) => {
 });
 
 const quizQuestions = [
-  { question: 'Which RPC type is used when the client sends one request and expects one response?', answer: 'unary' },
-  { question: 'Which transport layer is used under gRPC?', answer: 'http/2' },
-  { question: 'What is the contract language used to describe messages in gRPC?', answer: 'protobuf' },
-  { question: 'Which mode is used for two-way realtime message exchange?', answer: 'bidirectional streaming' },
+  { question: 'Какой тип RPC нужен, когда клиент отправляет один запрос и ждёт один ответ?', answer: 'unary' },
+  { question: 'Какая транспортная основа лежит под gRPC?', answer: 'http/2' },
+  { question: 'Как называется язык описания контрактов сообщений в gRPC?', answer: 'protobuf' },
+  { question: 'Какой режим нужен для двустороннего обмена сообщениями в реальном времени?', answer: 'bidirectional streaming' },
 ];
 
 app.get('/api/quiz', (_req, res) => {
@@ -270,7 +269,7 @@ app.post('/api/quiz/check', (req, res) => {
     score,
     total: quizQuestions.length,
     results,
-    message: `Score: ${score}/${quizQuestions.length}.`,
+    message: `Результат: ${score}/${quizQuestions.length}.`,
   });
 });
 
@@ -290,7 +289,7 @@ wss.on('connection', (ws) => {
 
     if (message.type === 'grpc-server-stream') {
       const stream = client.ServerStream({
-        name: message.name || 'Alex',
+        name: message.name || 'Алексей',
         text: message.text || 'streaming demo',
         count: 4,
         startedAt: Date.now(),
@@ -312,15 +311,11 @@ wss.on('connection', (ws) => {
         } catch (_err) {
           chunks = [];
         }
-        ws.send(JSON.stringify({
-          channel: 'client-stream-result',
-          item: response,
-          meta: { chunks },
-        }));
+        ws.send(JSON.stringify({ channel: 'client-stream-result', item: response, meta: { chunks } }));
       });
-      ['chunk-1', 'chunk-2', 'chunk-3'].forEach((chunk, index) => {
+      ['часть-1', 'часть-2', 'часть-3'].forEach((chunk, index) => {
         stream.write({
-          name: message.name || 'Alex',
+          name: message.name || 'Алексей',
           text: `${chunk}: ${message.text || 'payload'} #${index + 1}`,
           count: index + 1,
           startedAt: Date.now(),
@@ -336,7 +331,7 @@ wss.on('connection', (ws) => {
       stream.on('end', () => ws.send(JSON.stringify({ channel: 'bidi-end' })));
       ['alpha', 'beta', 'gamma'].forEach((chunk) => {
         stream.write({
-          name: message.name || 'Alex',
+          name: message.name || 'Алексей',
           text: `${chunk}: ${message.text || 'duplex'}`,
           count: 1,
           startedAt: Date.now(),
@@ -348,9 +343,9 @@ wss.on('connection', (ws) => {
 
     if (message.type === 'ws-demo') {
       [
-        'The connection is already open.',
-        'WebSocket is strong for realtime delivery.',
-        'But message contracts are usually looser than in gRPC.',
+        'Соединение уже открыто и можно сразу слать новые сообщения.',
+        'WebSocket силён в real-time сценариях.',
+        'Но формальный контракт сообщений обычно слабее, чем у gRPC.',
       ].forEach((text, index) => {
         setTimeout(() => {
           ws.send(JSON.stringify({
@@ -370,5 +365,5 @@ wss.on('connection', (ws) => {
 
 startGrpcServer();
 server.listen(HTTP_PORT, () => {
-  console.log(`HTTP server started on ${HTTP_PORT}`);
+  console.log(`HTTP сервер запущен на ${HTTP_PORT}`);
 });

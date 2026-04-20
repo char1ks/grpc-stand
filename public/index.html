@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,14 +13,14 @@
   <div class="aurora"></div>
   <header class="hero shell">
     <div class="hero-copy">
-      <div class="eyebrow">gRPC HyperLab • Docker Edition</div>
-      <h1>gRPC stand that makes the protocol <span>visible, simple, and convincing</span></h1>
+      <div class="eyebrow">gRPC стенд • Docker edition</div>
+      <h1>Стенд, который делает <span>gRPC понятным</span></h1>
       <p>
-        First the base. Then live RPC scenarios. Then a one-click protocol comparison. The quiz unlocks only after the student has actually gone through the stand.
+        Сначала база. Потом живые сценарии. Потом сравнение протоколов в один клик. Викторина откроется только после прохождения интерактива.
       </p>
       <div class="hero-actions">
-        <button class="primary" onclick="scrollToSection('interactive')">Start live demo</button>
-        <button class="secondary" onclick="scrollToSection('protocol-core')">See protocol core</button>
+        <button class="primary" onclick="scrollToSection('interactive')">Перейти к интерактиву</button>
+        <button class="secondary" onclick="scrollToSection('protocol-core')">Посмотреть основу протокола</button>
       </div>
     </div>
 
@@ -28,58 +28,64 @@
       <div class="legend-grid">
         <div class="legend-card">
           <span>Unary RPC</span>
-          <strong>1 request → 1 response</strong>
-          <small>Best entry point for the first demo.</small>
+          <strong>1 запрос → 1 ответ</strong>
+          <small>Самый простой вход в тему.</small>
         </div>
         <div class="legend-card">
           <span>Server Streaming</span>
-          <strong>1 request → many responses</strong>
-          <small>Server keeps sending updates over one connection.</small>
+          <strong>1 запрос → много ответов</strong>
+          <small>Сервер присылает обновления в одном соединении.</small>
         </div>
         <div class="legend-card">
           <span>Client Streaming</span>
-          <strong>many requests → 1 result</strong>
-          <small>Client sends chunks, server aggregates them.</small>
+          <strong>много сообщений → 1 итог</strong>
+          <small>Клиент шлёт части, сервер собирает результат.</small>
         </div>
         <div class="legend-card">
           <span>Bidirectional</span>
-          <strong>many ↔ many</strong>
-          <small>Both sides talk in parallel in real time.</small>
+          <strong>обе стороны ↔ обе стороны</strong>
+          <small>Параллельный обмен сообщениями в реальном времени.</small>
         </div>
       </div>
-      <div class="signal-line"></div>
-      <p class="mini-note">gRPC = HTTP/2 transport + Protocol Buffers contract + four RPC communication styles.</p>
+      <div class="legend-summary">
+        <div class="summary-pill"><b>HTTP/2</b><span>транспорт</span></div>
+        <div class="summary-plus">+</div>
+        <div class="summary-pill"><b>Protocol Buffers</b><span>контракт и бинарный формат</span></div>
+        <div class="summary-plus">+</div>
+        <div class="summary-pill"><b>4 режима RPC</b><span>разные сценарии общения</span></div>
+      </div>
+      <p class="mini-note">Идея стенда: показать не только термины, но и то, как всё реально работает.</p>
     </div>
   </header>
 
   <main class="shell">
     <section class="section" id="concepts">
       <div class="section-head">
-        <h2>1. Core ideas and vocabulary</h2>
-        <p>Short theory cards so the student understands the terms before pressing any buttons.</p>
+        <h2>1. База и термины</h2>
+        <p>Короткая теория перед нажатием кнопок.</p>
       </div>
       <div id="theoryCards" class="card-grid"></div>
     </section>
 
     <section class="section" id="protocol-core">
       <div class="section-head">
-        <h2>2. What is actually sent over the wire</h2>
-        <p>Plain .proto, minimal architecture, and byte-level protobuf breakdown of the default demo message.</p>
+        <h2>2. Что реально уходит по сети</h2>
+        <p>Пример .proto, нормальная схема и побайтовый разбор protobuf-сообщения.</p>
       </div>
 
       <div class="protocol-grid">
         <article class="glass code-card">
           <div class="card-top">
-            <h3>.proto contract</h3>
-            <button class="secondary small" onclick="loadProtoExample()">Refresh example</button>
+            <h3>.proto контракт</h3>
+            <button class="secondary small" onclick="loadProtoExample()">Обновить пример</button>
           </div>
-          <pre id="protoCode" class="code-block">Loading .proto example...</pre>
+          <pre id="protoCode" class="code-block">Загрузка примера...</pre>
         </article>
 
         <article class="glass architecture-card">
           <div class="card-top">
-            <h3>Minimal architecture</h3>
-            <button class="secondary small" onclick="loadProtoExample()">Refresh scheme</button>
+            <h3>Минимальная схема</h3>
+            <button class="secondary small" onclick="loadProtoExample()">Обновить схему</button>
           </div>
           <div id="architectureDiagram" class="architecture-diagram"></div>
         </article>
@@ -88,8 +94,8 @@
       <div class="protocol-grid single">
         <article class="glass breakdown-card">
           <div class="card-top">
-            <h3>Protobuf byte breakdown</h3>
-            <button class="secondary small" onclick="loadProtoExample()">Decode bytes</button>
+            <h3>Побайтовый разбор protobuf</h3>
+            <button class="secondary small" onclick="loadProtoExample()">Показать разбор</button>
           </div>
           <div class="breakdown-layout">
             <div>
@@ -104,18 +110,18 @@
 
     <section class="section" id="interactive">
       <div class="section-head">
-        <h2>3. Live interactive RPCs</h2>
-        <p>Every card answers the same questions: what the client sent, what the server did, and what the student should notice.</p>
+        <h2>3. Живой интерактив</h2>
+        <p>В каждом режиме показываем одно и то же: что сделал клиент, что сделал сервер и что здесь важно заметить.</p>
       </div>
 
       <div class="control-panel glass">
         <div class="field">
-          <label>Student name</label>
-          <input id="studentName" value="Alex" />
+          <label>Имя студента</label>
+          <input id="studentName" value="Алексей" />
         </div>
         <div class="field field-wide">
-          <label>Default message</label>
-          <input id="payloadText" value="Show how gRPC works without pain" />
+          <label>Тестовое сообщение</label>
+          <input id="payloadText" value="Покажи, как работает gRPC без боли" />
         </div>
       </div>
 
@@ -125,44 +131,44 @@
         <article class="glass demo-card">
           <div class="demo-topline">
             <span class="demo-type">Unary RPC</span>
-            <span class="demo-flow">one request → one response</span>
+            <span class="demo-flow">один запрос → один ответ</span>
           </div>
-          <p>Start here. It behaves like the simplest API call, but still uses HTTP/2 and protobuf underneath.</p>
-          <button class="primary" onclick="runUnary()">Run unary</button>
-          <div id="unaryOutput" class="visual-output"></div>
+          <p>Самый простой сценарий. По ощущениям почти как обычный API-вызов, но внутри уже HTTP/2 и protobuf.</p>
+          <button class="primary" onclick="runUnary()">Запустить unary</button>
+          <div id="unaryOutput" class="visual-output placeholder-box">Нажми кнопку, чтобы увидеть сценарий по шагам.</div>
           <div id="unaryChart" class="mini-chart"></div>
         </article>
 
         <article class="glass demo-card">
           <div class="demo-topline">
             <span class="demo-type">Server Streaming</span>
-            <span class="demo-flow">one request → many responses</span>
+            <span class="demo-flow">один запрос → много ответов</span>
           </div>
-          <p>One client call, then the server keeps delivering updates through the same connection.</p>
-          <button class="primary" onclick="runServerStream()">Run server stream</button>
-          <div id="serverStreamOutput" class="visual-output"></div>
+          <p>Клиент делает один вызов, а сервер потом присылает несколько обновлений в рамках того же соединения.</p>
+          <button class="primary" onclick="runServerStream()">Запустить поток сервера</button>
+          <div id="serverStreamOutput" class="visual-output placeholder-box">После запуска здесь появится понятная история потока.</div>
           <div id="serverChart" class="mini-chart"></div>
         </article>
 
         <article class="glass demo-card">
           <div class="demo-topline">
             <span class="demo-type">Client Streaming</span>
-            <span class="demo-flow">many requests → one result</span>
+            <span class="demo-flow">много сообщений → один итог</span>
           </div>
-          <p>The client sends several chunks first. The server responds once after collecting them all.</p>
-          <button class="primary" onclick="runClientStream()">Run client stream</button>
-          <div id="clientStreamOutput" class="visual-output"></div>
+          <p>Клиент отправляет несколько частей, сервер ждёт завершения и только потом отдаёт итог.</p>
+          <button class="primary" onclick="runClientStream()">Запустить поток клиента</button>
+          <div id="clientStreamOutput" class="visual-output placeholder-box">Здесь будет разбор, как сервер собирает итог из нескольких частей.</div>
           <div id="clientChart" class="mini-chart"></div>
         </article>
 
         <article class="glass demo-card">
           <div class="demo-topline">
             <span class="demo-type">Bidirectional Streaming</span>
-            <span class="demo-flow">parallel exchange in both directions</span>
+            <span class="demo-flow">обмен в обе стороны</span>
           </div>
-          <p>Client and server exchange messages at the same time. This is the clearest real-time scenario.</p>
-          <button class="primary" onclick="runBidi()">Run bidi stream</button>
-          <div id="bidiOutput" class="visual-output"></div>
+          <p>Обе стороны активны одновременно: клиент шлёт сообщения, сервер отвечает по ходу разговора.</p>
+          <button class="primary" onclick="runBidi()">Запустить bidi</button>
+          <div id="bidiOutput" class="visual-output placeholder-box">После запуска покажем живой двусторонний обмен без путаницы.</div>
           <div id="bidiChart" class="mini-chart"></div>
         </article>
       </div>
@@ -170,57 +176,57 @@
 
     <section class="section" id="compare">
       <div class="section-head">
-        <h2>4. One-click protocol comparison</h2>
-        <p>Show the same payload as protobuf for gRPC and as JSON for WebSocket / REST so the difference is visible immediately.</p>
+        <h2>4. Сравнение протоколов одним нажатием</h2>
+        <p>Показываем один и тот же payload в protobuf и JSON, чтобы разница была видна сразу.</p>
       </div>
 
       <div class="compare-wrap glass">
         <div class="compare-actions">
-          <button class="primary" onclick="runCompare()">Compare gRPC / REST / WebSocket</button>
-          <button class="secondary" onclick="runWsDemo()">Run WebSocket realtime</button>
+          <button class="primary" onclick="runCompare()">Сравнить gRPC / REST / WebSocket</button>
+          <button class="secondary" onclick="runWsDemo()">Запустить WebSocket demo</button>
         </div>
 
         <div id="compareTable" class="compare-table compare-placeholder">
-          <div class="placeholder-panel">Press compare to render the transport table, the payload examples, and the byte-growth chart.</div>
+          <div class="placeholder-panel">Нажми кнопку выше, чтобы увидеть таблицу сравнения, примеры payload и график роста байт.</div>
         </div>
         <div id="compareInsight" class="insight"></div>
 
         <div class="compare-visuals">
           <article class="payload-box">
-            <h3>gRPC payload shape</h3>
-            <pre id="grpcPayloadView" class="code-block compact">Protocol Buffers bytes will appear here.</pre>
+            <h3>Как выглядит gRPC payload</h3>
+            <pre id="grpcPayloadView" class="code-block compact">Здесь появятся protobuf-байты.</pre>
           </article>
           <article class="payload-box">
-            <h3>WebSocket / REST payload shape</h3>
-            <pre id="jsonPayloadView" class="code-block compact">JSON message will appear here.</pre>
+            <h3>Как выглядит JSON payload</h3>
+            <pre id="jsonPayloadView" class="code-block compact">Здесь появится JSON.</pre>
           </article>
         </div>
 
         <article class="chart-panel">
           <div class="card-top">
-            <h3>How bytes grow during a stream</h3>
+            <h3>Как растут байты во время потока</h3>
             <span class="chart-note">gRPC protobuf vs WebSocket JSON</span>
           </div>
           <div id="compareChart" class="line-chart"></div>
         </article>
 
-        <div id="wsOutput" class="output"></div>
+        <div id="wsOutput" class="output placeholder-box">Здесь можно отдельно показать поведение WebSocket в real-time.</div>
       </div>
     </section>
 
     <section class="section hidden" id="quizSection">
       <div class="section-head">
-        <h2>5. Final quiz</h2>
+        <h2>5. Финальная викторина</h2>
       </div>
       <div class="glass quiz-box">
         <div id="quizQuestions"></div>
-        <button class="primary" onclick="checkQuiz()">Check answers</button>
+        <button class="primary" onclick="checkQuiz()">Проверить ответы</button>
         <div id="quizResult" class="output"></div>
       </div>
     </section>
   </main>
 
-  <div id="unlockToast" class="unlock-toast hidden">Quiz unlocked. The student completed the live demos and the protocol comparison.</div>
+  <div id="unlockToast" class="unlock-toast hidden">Викторина открыта: интерактив и сравнение пройдены.</div>
   <script src="/app.js"></script>
 </body>
 </html>
