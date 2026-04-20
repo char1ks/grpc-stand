@@ -45,11 +45,11 @@ body {
   z-index: 1;
 }
 .hero {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 24px;
-  align-items: center;
-  padding: 54px 0 28px;
+  display: block;
+  padding: 54px 0 20px;
+}
+.hero-copy {
+  max-width: 760px;
 }
 .hero h1 {
   font-size: clamp(36px, 5vw, 68px);
@@ -99,18 +99,6 @@ button.small { padding: 10px 14px; font-size: 13px; }
   backdrop-filter: blur(16px);
 }
 .hero-panel, .card, .demo-card, .compare-wrap, .quiz-box, .code-card, .architecture-card, .breakdown-card, .payload-box, .chart-panel { padding: 20px; }
-.hero-panel {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  backdrop-filter: none;
-  padding: 0;
-}
-.hero-panel .mini-note {
-  margin: 22px 0 0;
-  font-size: 18px;
-}
-
 .legend-grid, .card-grid, .protocol-grid, .compare-visuals { display: grid; gap: 16px; }
 .legend-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
