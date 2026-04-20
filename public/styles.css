@@ -20,20 +20,23 @@ body {
   font-family: 'Inter', sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 10% 20%, rgba(57, 244, 223, 0.10), transparent 20%),
-    radial-gradient(circle at 85% 10%, rgba(125, 66, 255, 0.18), transparent 26%),
-    radial-gradient(circle at 75% 80%, rgba(255, 118, 202, 0.08), transparent 24%),
-    linear-gradient(180deg, #170014 0%, #140012 36%, #0f0010 100%);
+    radial-gradient(circle at 0% 18%, rgba(57, 244, 223, 0.18), transparent 22%),
+    linear-gradient(180deg, #0b0e10 0%, #090b0d 100%);
+  position: relative;
+  overflow-x: hidden;
 }
 .aurora {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(57, 244, 223, 0.16), transparent 18%),
-    radial-gradient(circle at 70% 22%, rgba(125, 66, 255, 0.14), transparent 18%),
-    radial-gradient(circle at 52% 100%, rgba(18, 159, 178, 0.10), transparent 28%);
-  filter: blur(26px);
+  opacity: 0.95;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='%2322d7d0' fill-opacity='0.20'%3E%3Cpath d='M36 9l4 17 17 4-17 4-4 17-4-17-17-4 17-4z'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(circle at 0% 28%, rgba(57, 244, 223, 0.16), transparent 24%),
+    linear-gradient(90deg, rgba(57, 244, 223, 0.10), rgba(57, 244, 223, 0.02) 12%, transparent 38%);
+  background-size: 72px 72px, auto, 100% 100%;
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-position: left top, left center, left center;
 }
 .shell {
   width: min(1240px, calc(100% - 32px));
@@ -96,6 +99,18 @@ button.small { padding: 10px 14px; font-size: 13px; }
   backdrop-filter: blur(16px);
 }
 .hero-panel, .card, .demo-card, .compare-wrap, .quiz-box, .code-card, .architecture-card, .breakdown-card, .payload-box, .chart-panel { padding: 20px; }
+.hero-panel {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 0;
+}
+.hero-panel .mini-note {
+  margin: 22px 0 0;
+  font-size: 18px;
+}
+
 .legend-grid, .card-grid, .protocol-grid, .compare-visuals { display: grid; gap: 16px; }
 .legend-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
