@@ -137,7 +137,7 @@ button.small { padding: 10px 14px; font-size: 13px; }
 .section-head { margin-bottom: 18px; }
 .section-head h2, .card h3, .card-top h3 { margin: 0; }
 .section-head h2 { font-size: 32px; margin-bottom: 6px; }
-.demo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.demo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
 .demo-type { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; }
 .demo-topline { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 8px; }
 .control-panel {
@@ -175,22 +175,23 @@ button.small { padding: 10px 14px; font-size: 13px; }
 .code-block { min-height: 220px; }
 .code-block.compact { min-height: 110px; }
 .visual-output, .output { min-height: 0; }
+.demo-card { align-self: start; }
 .placeholder-box { color: var(--muted); }
-.architecture-diagram { min-height: 220px; }
+.architecture-diagram { min-height: 220px; overflow: hidden; }
 .scheme-wrap {
   display: grid;
-  grid-template-columns: 1fr 120px 1fr 120px 1fr;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1fr) 96px minmax(0, 1fr);
+  gap: 10px;
   align-items: center;
 }
 .scheme-node {
   padding: 18px;
-  min-height: 170px;
+  min-height: 160px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-.scheme-node strong { font-size: 26px; line-height: 1.05; margin: 8px 0 10px; }
+.scheme-node strong { font-size: clamp(18px, 2vw, 26px); line-height: 1.05; margin: 8px 0 10px; word-break: break-word; }
 .scheme-node small { color: var(--muted); line-height: 1.5; }
 .scheme-link { text-align: center; }
 .scheme-line {
@@ -211,7 +212,7 @@ button.small { padding: 10px 14px; font-size: 13px; }
   border-bottom: 8px solid transparent;
 }
 .scheme-line.bright { background: linear-gradient(90deg, rgba(57,244,223,.35), rgba(125,66,255,.78)); }
-.scheme-label { margin-top: 10px; color: var(--accent); font-size: 13px; font-weight: 800; }
+.scheme-label { margin-top: 10px; color: var(--accent); font-size: 12px; font-weight: 800; line-height: 1.2; }
 .scheme-note {
   margin-top: 16px;
   padding: 14px 16px;
@@ -311,4 +312,5 @@ button.small { padding: 10px 14px; font-size: 13px; }
   }
   .demo-topline, .card-top { flex-direction: column; align-items: flex-start; }
   .scheme-link { padding: 4px 0 12px; }
+  .architecture-card, .breakdown-card, .code-card { overflow: hidden; }
 }
