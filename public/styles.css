@@ -137,7 +137,7 @@ button.small { padding: 10px 14px; font-size: 13px; }
 .section-head { margin-bottom: 18px; }
 .section-head h2, .card h3, .card-top h3 { margin: 0; }
 .section-head h2 { font-size: 32px; margin-bottom: 6px; }
-.demo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.demo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
 .demo-type { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; }
 .demo-topline { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 8px; }
 .control-panel {
@@ -175,31 +175,28 @@ button.small { padding: 10px 14px; font-size: 13px; }
 .code-block { min-height: 220px; }
 .code-block.compact { min-height: 110px; }
 .visual-output, .output { min-height: 0; }
+.demo-card { align-self: start; }
 .placeholder-box { color: var(--muted); }
-.architecture-diagram { min-height: 220px; width: 100%; overflow: hidden; }
+.architecture-diagram { min-height: 220px; overflow: hidden; }
 .scheme-wrap {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(72px, 96px) minmax(0, 1fr) minmax(72px, 96px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1fr) 96px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
-  width: 100%;
 }
 .scheme-node {
   padding: 18px;
-  min-height: 170px;
-  min-width: 0;
+  min-height: 160px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  overflow-wrap: anywhere;
 }
-.scheme-node strong { font-size: clamp(20px, 2.5vw, 26px); line-height: 1.05; margin: 8px 0 10px; }
+.scheme-node strong { font-size: clamp(18px, 2vw, 26px); line-height: 1.05; margin: 8px 0 10px; word-break: break-word; }
 .scheme-node small { color: var(--muted); line-height: 1.5; }
-.scheme-link { text-align: center; min-width: 0; }
+.scheme-link { text-align: center; }
 .scheme-line {
   position: relative;
   height: 4px;
-  width: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, rgba(57,244,223,.25), rgba(57,244,223,.75));
   box-shadow: 0 0 20px rgba(57,244,223,.22);
@@ -207,15 +204,15 @@ button.small { padding: 10px 14px; font-size: 13px; }
 .scheme-line::after {
   content: '';
   position: absolute;
-  right: 0;
+  right: -2px;
   top: 50%;
   transform: translateY(-50%);
-  border-left: 10px solid var(--accent);
-  border-top: 7px solid transparent;
-  border-bottom: 7px solid transparent;
+  border-left: 12px solid var(--accent);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
 }
 .scheme-line.bright { background: linear-gradient(90deg, rgba(57,244,223,.35), rgba(125,66,255,.78)); }
-.scheme-label { margin-top: 10px; color: var(--accent); font-size: 13px; font-weight: 800; }
+.scheme-label { margin-top: 10px; color: var(--accent); font-size: 12px; font-weight: 800; line-height: 1.2; }
 .scheme-note {
   margin-top: 16px;
   padding: 14px 16px;
@@ -236,14 +233,14 @@ button.small { padding: 10px 14px; font-size: 13px; }
 .flow-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .flow-head strong { font-size: 22px; }
 .lane-grid { display: grid; gap: 10px; }
-.lane-card { padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,0.025); }
-.lane-title { font-size: 18px; font-weight: 800; margin: 0 0 8px; }
-.lane-text { line-height: 1.5; font-size: 15px; }
+.lane-card { padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,0.025); }
+.lane-title { font-size: 18px; font-weight: 800; margin: 0 0 8px; line-height: 1.2; }
+.lane-text { line-height: 1.5; font-size: 16px; }
 .lane-card.client { border-left: 3px solid var(--accent); }
 .lane-card.server { border-left: 3px solid var(--accent-3); }
 .lane-card.notice { border-left: 3px solid var(--pink); }
 .lane-tag { line-height: 1; margin: 0; }
-.flow-footer { margin-top: 12px; border-top: 1px solid rgba(57,244,223,0.08); padding-top: 10px; }
+.flow-footer { margin-top: 14px; border-top: 1px solid rgba(57,244,223,0.08); padding-top: 12px; }
 .mini-chart {
   margin-top: 14px;
   padding: 14px;
@@ -272,9 +269,9 @@ button.small { padding: 10px 14px; font-size: 13px; }
   border-radius: 0 16px 16px 0;
   min-height: 64px;
 }
-.chart-panel { margin-top: 22px; overflow: hidden; }
-.line-chart { min-height: 320px; overflow: hidden; }
-.chart-svg { width: 100%; max-width: 100%; height: auto; display: block; }
+.chart-panel { margin-top: 22px; }
+.line-chart { min-height: 320px; }
+.chart-svg { width: 100%; height: auto; }
 .axis { stroke: rgba(255,255,255,0.25); stroke-width: 1.5; }
 .gridline { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
 .tick-label { fill: rgba(255,255,255,0.62); font-size: 12px; font-family: Inter, sans-serif; }
@@ -316,12 +313,5 @@ button.small { padding: 10px 14px; font-size: 13px; }
   }
   .demo-topline, .card-top { flex-direction: column; align-items: flex-start; }
   .scheme-link { padding: 4px 0 12px; }
-  .scheme-line { max-width: 180px; margin: 0 auto; }
-}
-
-@media (min-width: 1081px) and (max-width: 1280px) {
-  .scheme-wrap {
-    grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr) 72px minmax(0, 1fr);
-  }
-  .scheme-node { padding: 16px; min-height: 160px; }
+  .architecture-card, .breakdown-card, .code-card { overflow: hidden; }
 }
