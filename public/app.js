@@ -82,8 +82,10 @@ function setVisualState(id, title, subtitle, lanes = [], footer = '') {
     <div class="lane-grid">
       ${lanes.map((lane) => `
         <div class="lane-card ${lane.side}">
-          <div class="lane-tag">${lane.side === 'client' ? 'Клиент' : lane.side === 'server' ? 'Сервер' : 'Что важно заметить'}</div>
-          <div class="lane-title">${lane.title}</div>
+          <div class="lane-head">
+            <div class="lane-tag">${lane.side === 'client' ? 'Клиент' : lane.side === 'server' ? 'Сервер' : 'Что важно заметить'}</div>
+            <div class="lane-title">${lane.title}</div>
+          </div>
           <div class="lane-text">${lane.text}</div>
         </div>
       `).join('')}

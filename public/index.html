@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gRPC HyperLab</title>
+  <title>gRPC стенд</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -32,12 +32,12 @@
           <small>Самый простой вход в тему.</small>
         </div>
         <div class="legend-card">
-          <span>Server Streaming</span>
+          <span>Server streaming</span>
           <strong>1 запрос → много ответов</strong>
           <small>Сервер присылает обновления в одном соединении.</small>
         </div>
         <div class="legend-card">
-          <span>Client Streaming</span>
+          <span>Client streaming</span>
           <strong>много сообщений → 1 итог</strong>
           <small>Клиент шлёт части, сервер собирает результат.</small>
         </div>
@@ -141,7 +141,7 @@
 
         <article class="glass demo-card">
           <div class="demo-topline">
-            <span class="demo-type">Server Streaming</span>
+            <span class="demo-type">Server streaming</span>
             <span class="demo-flow">один запрос → много ответов</span>
           </div>
           <p>Клиент делает один вызов, а сервер потом присылает несколько обновлений в рамках того же соединения.</p>
@@ -152,7 +152,7 @@
 
         <article class="glass demo-card">
           <div class="demo-topline">
-            <span class="demo-type">Client Streaming</span>
+            <span class="demo-type">Client streaming</span>
             <span class="demo-flow">много сообщений → один итог</span>
           </div>
           <p>Клиент отправляет несколько частей, сервер ждёт завершения и только потом отдаёт итог.</p>
@@ -163,7 +163,7 @@
 
         <article class="glass demo-card">
           <div class="demo-topline">
-            <span class="demo-type">Bidirectional Streaming</span>
+            <span class="demo-type">Bidirectional streaming</span>
             <span class="demo-flow">обмен в обе стороны</span>
           </div>
           <p>Обе стороны активны одновременно: клиент шлёт сообщения, сервер отвечает по ходу разговора.</p>

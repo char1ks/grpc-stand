@@ -233,13 +233,51 @@ button.small { padding: 10px 14px; font-size: 13px; }
 .flow-head { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .flow-head strong { font-size: 22px; }
 .lane-grid { display: grid; gap: 10px; }
-.lane-card { padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,0.025); }
-.lane-title { font-size: 18px; font-weight: 800; margin: 0 0 8px; line-height: 1.2; }
-.lane-text { line-height: 1.5; font-size: 16px; }
+.lane-card {
+  padding: 12px 14px 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.025);
+}
+.lane-card h1,
+.lane-card h2,
+.lane-card h3,
+.lane-card h4,
+.lane-card h5,
+.lane-card h6,
+.lane-card p,
+.lane-card div {
+  margin: 0;
+}
+.lane-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 0 0 8px;
+  padding: 0;
+}
+.lane-tag {
+  display: block;
+  margin: 0 0 2px;
+  padding: 0;
+  line-height: 1;
+}
+.lane-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 !important;
+  padding: 0;
+  line-height: 1.05;
+}
+.lane-text {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 16px;
+}
 .lane-card.client { border-left: 3px solid var(--accent); }
 .lane-card.server { border-left: 3px solid var(--accent-3); }
 .lane-card.notice { border-left: 3px solid var(--pink); }
-.lane-tag { line-height: 1; margin: 0; }
 .flow-footer { margin-top: 14px; border-top: 1px solid rgba(57,244,223,0.08); padding-top: 12px; }
 .mini-chart {
   margin-top: 14px;
