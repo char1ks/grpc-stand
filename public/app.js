@@ -10,25 +10,12 @@ const progress = {
 
 const streamState = {
   server: [],
+  client: [],
   bidi: [],
-  charts: {
-    unary: [],
-    server: [],
-    client: [],
-    bidi: [],
-  },
 };
 
 function scrollToSection(id) {
   document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-}
-
-function getPayload() {
-  return {
-    name: document.getElementById('studentName').value || 'Алексей',
-    text: document.getElementById('payloadText').value || 'Покажи, как работает gRPC без боли',
-    count: 3,
-  };
 }
 
 function escapeHtml(value) {
@@ -40,14 +27,23 @@ function escapeHtml(value) {
     .replace(/'/g, '&#039;');
 }
 
+function getPayload() {
+  return {
+    name: document.getElementById('studentName').value || 'Алексей',
+    text: document.getElementById('payloadText').value || 'Покажи, как работает gRPC без боли',
+    count: 3,
+    startedAt: 1337,
+  };
+}
+
 function renderProgress() {
   const root = document.getElementById('interactiveProgress');
   const labels = [
-    ['unary', 'Unary пройден'],
-    ['server', 'Server streaming пройден'],
-    ['client', 'Client streaming пройден'],
-    ['bidi', 'Bidi пройден'],
-    ['compare', 'Сравнение пройдено'],
+    ['unary', 'Unary'],
+    ['server', 'Server stream'],
+    ['client', 'Client stream'],
+    ['bidi', 'Bidi'],
+    ['compare', 'Сравнение'],
   ];
   root.innerHTML = labels.map(([key, label]) => `
     <div class="progress-pill ${progress[key] ? 'done' : ''}">
@@ -56,125 +52,88 @@ function renderProgress() {
   `).join('');
 }
 
+function showToast(text) {
+  const toast = document.getElementById('unlockToast');
+  toast.textContent = text;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 2200);
+}
+
+function maybeUnlockNext() {
+  if (progress.unary) {
+    document.getElementById('serverCard').classList.remove('hidden');
+    document.getElementById('compare').classList.remove('hidden');
+    document.getElementById('breakdownCard').classList.remove('hidden');
+    document.getElementById('wirePreviewCard').classList.remove('hidden');
+  }
+  if (progress.server) document.getElementById('clientCard').classList.remove('hidden');
+  if (progress.client) document.getElementById('bidiCard').classList.remove('hidden');
+  if (Object.values(progress).every(Boolean)) {
+    document.getElementById('quizSection').classList.remove('hidden');
+  }
+}
+
 function markComplete(key) {
+  const firstTime = !progress[key];
   progress[key] = true;
   renderProgress();
-  if (Object.values(progress).every(Boolean)) {
-    const section = document.getElementById('quizSection');
-    if (section.classList.contains('hidden')) {
-      section.classList.remove('hidden');
-      document.getElementById('unlockToast').classList.remove('hidden');
-      setTimeout(() => document.getElementById('unlockToast').classList.add('hidden'), 3200);
-      loadQuiz();
-      setTimeout(() => scrollToSection('quizSection'), 500);
-    }
+  maybeUnlockNext();
+  if (firstTime) {
+    const messages = {
+      unary: 'Открылся server streaming и блок сравнения.',
+      server: 'Открылся client streaming.',
+      client: 'Открылся bidirectional streaming.',
+      bidi: 'Осталось пройти сравнение.',
+      compare: 'Сравнение пройдено.',
+    };
+    showToast(messages[key] || 'Открылись новые блоки.');
   }
 }
 
-function setVisualState(id, title, subtitle, lanes = [], footer = '') {
-  const el = document.getElementById(id);
-  el.classList.remove('placeholder-box');
-  el.innerHTML = `
+function storyCard(side, title, text) {
+  return `
+    <div class="lane-card ${side}">
+      <div class="lane-head">
+        <div class="lane-tag">${side === 'client' ? 'клиент' : side === 'server' ? 'сервер' : 'что важно заметить'}</div>
+        <div class="lane-title">${escapeHtml(title)}</div>
+      </div>
+      <div class="lane-text">${escapeHtml(text)}</div>
+    </div>
+  `;
+}
+
+function setStory(targetId, title, subtitle, cards, footer = '') {
+  const root = document.getElementById(targetId);
+  root.classList.remove('placeholder-box');
+  root.innerHTML = `
     <div class="flow-head">
-      <strong>${title}</strong>
-      <span>${subtitle}</span>
+      <strong>${escapeHtml(title)}</strong>
+      <span>${escapeHtml(subtitle)}</span>
     </div>
     <div class="lane-grid">
-      ${lanes.map((lane) => `
-        <div class="lane-card ${lane.side}">
-          <div class="lane-head">
-            <div class="lane-tag">${lane.side === 'client' ? 'Клиент' : lane.side === 'server' ? 'Сервер' : 'Что важно заметить'}</div>
-            <div class="lane-title">${lane.title}</div>
-          </div>
-          <div class="lane-text">${lane.text}</div>
-        </div>
-      `).join('')}
+      ${cards.map((card) => storyCard(card.side, card.title, card.text)).join('')}
     </div>
-    ${footer ? `<div class="flow-footer">${footer}</div>` : ''}
+    ${footer ? `<div class="flow-footer">${escapeHtml(footer)}</div>` : ''}
   `;
 }
 
-function renderMiniChart(id, points, unitLabel = 'байт') {
-  const root = document.getElementById(id);
-  if (!points.length) {
-    root.innerHTML = '';
-    return;
-  }
-  const max = Math.max(...points.map((p) => p.value), 1);
-  root.innerHTML = `
-    <div class="mini-chart-head">Сколько данных прошло на этом шаге, ${unitLabel}</div>
-    <div class="mini-chart-bars">
-      ${points.map((p) => `
-        <div class="bar-wrap">
-          <div class="bar" style="height:${Math.max(18, (p.value / max) * 100)}%"></div>
-          <span>${p.label}</span>
-          <strong>${p.value}</strong>
-        </div>
-      `).join('')}
+function renderWirePreview(payload, data) {
+  document.getElementById('wirePreview').innerHTML = `
+    <div class="wire-row">
+      <div class="wire-key">Имя</div>
+      <div class="wire-value">${escapeHtml(payload.name)}</div>
     </div>
-  `;
-}
-
-function renderLineChart(id, grpcPoints, wsPoints) {
-  const root = document.getElementById(id);
-  if (!grpcPoints.length || !wsPoints.length) {
-    root.innerHTML = '';
-    return;
-  }
-  const maxValue = Math.max(...grpcPoints, ...wsPoints, 1);
-  const width = 760;
-  const height = 260;
-  const pad = 34;
-  const steps = Math.max(grpcPoints.length, wsPoints.length);
-
-  const toPolyline = (points) => points.map((value, index) => {
-    const x = pad + ((width - pad * 2) / (steps - 1 || 1)) * index;
-    const y = height - pad - ((height - pad * 2) * value / maxValue);
-    return `${x},${y}`;
-  }).join(' ');
-
-  const grpcLine = toPolyline(grpcPoints);
-  const wsLine = toPolyline(wsPoints);
-
-  root.innerHTML = `
-    <svg viewBox="0 0 ${width} ${height}" class="chart-svg" role="img" aria-label="график байт protobuf и json">
-      <defs>
-        <linearGradient id="grpcLine" x1="0" x2="1">
-          <stop offset="0%" stop-color="#38ffe3" />
-          <stop offset="100%" stop-color="#8afff3" />
-        </linearGradient>
-        <linearGradient id="wsLine" x1="0" x2="1">
-          <stop offset="0%" stop-color="#9f5dff" />
-          <stop offset="100%" stop-color="#ff78cc" />
-        </linearGradient>
-      </defs>
-      <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" class="axis" />
-      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" class="axis" />
-      ${[0.25, 0.5, 0.75, 1].map((tick) => {
-        const y = height - pad - ((height - pad * 2) * tick);
-        const value = Math.round(maxValue * tick);
-        return `<g><line x1="${pad}" y1="${y}" x2="${width - pad}" y2="${y}" class="gridline" /><text x="6" y="${y + 4}" class="tick-label">${value} Б</text></g>`;
-      }).join('')}
-      <polyline points="${grpcLine}" fill="none" stroke="url(#grpcLine)" stroke-width="4" stroke-linecap="round" />
-      <polyline points="${wsLine}" fill="none" stroke="url(#wsLine)" stroke-width="4" stroke-linecap="round" />
-      ${grpcPoints.map((value, index) => {
-        const x = pad + ((width - pad * 2) / (steps - 1 || 1)) * index;
-        const y = height - pad - ((height - pad * 2) * value / maxValue);
-        return `<circle cx="${x}" cy="${y}" r="5" fill="#38ffe3" />`;
-      }).join('')}
-      ${wsPoints.map((value, index) => {
-        const x = pad + ((width - pad * 2) / (steps - 1 || 1)) * index;
-        const y = height - pad - ((height - pad * 2) * value / maxValue);
-        return `<circle cx="${x}" cy="${y}" r="5" fill="#ff78cc" />`;
-      }).join('')}
-      ${Array.from({ length: steps }).map((_, index) => {
-        const x = pad + ((width - pad * 2) / (steps - 1 || 1)) * index;
-        return `<text x="${x - 8}" y="${height - 10}" class="tick-label">${index + 1}</text>`;
-      }).join('')}
-    </svg>
-    <div class="chart-legend">
-      <span><i class="legend-dot grpc"></i>gRPC protobuf</span>
-      <span><i class="legend-dot ws"></i>WebSocket JSON</span>
+    <div class="wire-row">
+      <div class="wire-key">Фраза</div>
+      <div class="wire-value">${escapeHtml(payload.text)}</div>
+    </div>
+    <div class="wire-row">
+      <div class="wire-key">gRPC / protobuf</div>
+      <div class="wire-value">${data.compactness.protobufBytes} Б</div>
+    </div>
+    <div class="wire-row">
+      <div class="wire-key">JSON</div>
+      <div class="wire-value">${data.compactness.jsonBytes} Б</div>
     </div>
   `;
 }
@@ -182,86 +141,71 @@ function renderLineChart(id, grpcPoints, wsPoints) {
 async function loadTheory() {
   const res = await fetch('/api/theory');
   const data = await res.json();
-  const root = document.getElementById('theoryCards');
-  root.innerHTML = data.cards.map((card) => `
-    <article class="glass card">
-      <div class="badge">база</div>
-      <h3>${card.title}</h3>
-      <p>${card.text}</p>
+  document.getElementById('theoryCards').innerHTML = data.cards.map((item) => `
+    <article class="glass card theory-card">
+      <h3>${escapeHtml(item.title)}</h3>
+      <p>${escapeHtml(item.text)}</p>
     </article>
   `).join('');
 }
 
+function renderArchitecture() {
+  document.getElementById('architectureDiagram').innerHTML = `
+    <div class="scheme-simple">
+      <div class="scheme-box">
+        <span>Шаг 1</span>
+        <strong>Браузер</strong>
+        <small>Пользователь нажал кнопку и отправил фразу.</small>
+      </div>
+      <div class="scheme-arrow">HTTP</div>
+      <div class="scheme-box">
+        <span>Шаг 2</span>
+        <strong>Backend</strong>
+        <small>Node.js принял запрос и вызвал gRPC-метод.</small>
+      </div>
+      <div class="scheme-arrow bright">HTTP/2 + protobuf</div>
+      <div class="scheme-box">
+        <span>Шаг 3</span>
+        <strong>gRPC service</strong>
+        <small>Сервис обработал unary или потоковый вызов.</small>
+      </div>
+    </div>
+  `;
+}
+
 async function loadProtoExample() {
-  const res = await fetch('/api/proto-inspect');
+  const payload = getPayload();
+  const params = new URLSearchParams({
+    name: payload.name,
+    text: payload.text,
+    count: String(payload.count),
+    startedAt: String(payload.startedAt),
+  });
+  const res = await fetch(`/api/proto-inspect?${params}`);
   const data = await res.json();
 
   document.getElementById('protoCode').textContent = data.proto;
-  document.getElementById('architectureDiagram').innerHTML = `
-    <div class="scheme-wrap">
-      <div class="scheme-node scheme-client">
-        <span class="scheme-kicker">Шаг 1</span>
-        <strong>Браузерный интерфейс</strong>
-        <small>Студент нажимает кнопки, вводит сообщение и запускает демо.</small>
-      </div>
-      <div class="scheme-link">
-        <div class="scheme-line"></div>
-        <div class="scheme-label">HTTP / WebSocket</div>
-      </div>
-      <div class="scheme-node scheme-backend">
-        <span class="scheme-kicker">Шаг 2</span>
-        <strong>Node.js backend</strong>
-        <small>Показывает REST, WebSocket и gRPC-логику стенда.</small>
-      </div>
-      <div class="scheme-link">
-        <div class="scheme-line bright"></div>
-        <div class="scheme-label">HTTP/2 + protobuf</div>
-      </div>
-      <div class="scheme-node scheme-server">
-        <span class="scheme-kicker">Шаг 3</span>
-        <strong>gRPC service</strong>
-        <small>Выполняет Unary, Server Stream, Client Stream и Bidi по .proto контракту.</small>
-      </div>
-    </div>
-    <div class="scheme-note">Смысл схемы: интерфейс общается с backend, а backend уже вызывает gRPC-сервис по HTTP/2 с protobuf.</div>
+  renderArchitecture();
+
+  document.getElementById('liveFieldBreakdown').innerHTML = `
+    <div class="live-pill"><span>name</span><strong>${escapeHtml(payload.name)}</strong></div>
+    <div class="live-pill"><span>text</span><strong>${escapeHtml(payload.text)}</strong></div>
+    <div class="live-pill"><span>count</span><strong>${payload.count}</strong></div>
+    <div class="live-pill"><span>startedAt</span><strong>${payload.startedAt}</strong></div>
   `;
 
-  document.getElementById('hexRibbon').innerHTML = data.hex.map((chunk) => `
-    <div class="hex-chip">
-      <span>${chunk.hex}</span>
-      <small>${chunk.meaning}</small>
-    </div>
-  `).join('');
-
   document.getElementById('protoSummary').innerHTML = `
-    <div><span>Пример поля name</span><strong>${escapeHtml(data.sample.name)}</strong></div>
-    <div><span>Пример поля text</span><strong>${escapeHtml(data.sample.text)}</strong></div>
     <div><span>protobuf размер</span><strong>${data.protobufBytes} Б</strong></div>
     <div><span>json размер</span><strong>${data.jsonBytes} Б</strong></div>
   `;
 
-  document.getElementById('byteBreakdown').innerHTML = `
-    <div class="byte-row header">
-      <div>Байты</div><div>Поле</div><div>Что это значит</div>
-    </div>
-    ${data.breakdown.map((row) => `
-      <div class="byte-row">
-        <div>${row.hex}</div>
-        <div>${row.field}</div>
-        <div>${row.explanation}</div>
+  document.getElementById('byteBreakdown').innerHTML = data.breakdown.map((row) => `
+    <div class="byte-item">
+      <div class="byte-hex">${escapeHtml(row.hex)}</div>
+      <div class="byte-copy">
+        <strong>${escapeHtml(row.field)}</strong>
+        <span>${escapeHtml(row.explanation)}</span>
       </div>
-    `).join('')}
-  `;
-}
-
-async function loadQuiz() {
-  const res = await fetch('/api/quiz');
-  const data = await res.json();
-  const root = document.getElementById('quizQuestions');
-  root.innerHTML = data.questions.map((item) => `
-    <div class="quiz-item">
-      <label><strong>${item.id}. ${item.question}</strong></label>
-      <input id="quiz-${item.id}" placeholder="Введите ответ" />
     </div>
   `).join('');
 }
@@ -273,19 +217,17 @@ function connectSocket() {
 
     if (data.channel === 'server-stream') {
       streamState.server.push(data.item.message);
-      streamState.charts.server.push({ label: `${streamState.server.length}`, value: data.item.bytes });
-      setVisualState(
+      setStory(
         'serverStreamOutput',
-        'Server streaming: что происходит',
-        'Клиент сделал один вызов, а сервер продолжает присылать новые сообщения в том же соединении.',
+        'Server streaming: живая история',
+        'Один запрос уже ушёл. Теперь сервер присылает новые ответы в рамках того же соединения.',
         [
-          { side: 'client', title: 'Действие клиента', text: `Отправил один запрос с текстом: «${getPayload().text}».` },
-          { side: 'server', title: `Ответ сервера #${streamState.server.length}`, text: data.item.message },
-          { side: 'notice', title: 'Главная мысль', text: 'Клиент не переподключается. Следующие ответы приходят в уже открытом потоке.' },
+          { side: 'client', title: 'Что сделал клиент', text: `Один раз отправил фразу: «${getPayload().text}».` },
+          { side: 'server', title: `Что прислал сервер сейчас`, text: data.item.message },
+          { side: 'notice', title: 'На что смотреть', text: 'Клиент не создаёт новый запрос на каждый следующий ответ.' },
         ],
-        'Где полезно: прогресс-бар, логи, события, частичные результаты.'
+        `Сообщений в потоке: ${streamState.server.length}`
       );
-      renderMiniChart('serverChart', streamState.charts.server);
       return;
     }
 
@@ -295,43 +237,33 @@ function connectSocket() {
     }
 
     if (data.channel === 'client-stream-result') {
-      const points = data.meta?.chunks?.map((value, index) => ({ label: `${index + 1}`, value })) || [];
-      streamState.charts.client = points;
-      renderMiniChart('clientChart', points);
-      setVisualState(
+      setStory(
         'clientStreamOutput',
-        'Client streaming: что происходит',
-        'Клиент сначала отправил несколько частей, а сервер ответил только один раз в конце.',
+        'Client streaming: живая история',
+        'Клиент отправил несколько частей, а сервер ответил только один раз в конце.',
         [
-          { side: 'client', title: 'Действие клиента', text: 'Отправил три части в одном потоке. Сервер не отвечал после каждой из них отдельно.' },
-          { side: 'server', title: 'Итог сервера', text: data.item.message },
-          { side: 'notice', title: 'Главная мысль', text: 'Этот режим подходит там, где из многих маленьких частей нужен один общий результат.' },
+          { side: 'client', title: 'Что сделал клиент', text: 'Отправил 3 части подряд в одном исходящем потоке.' },
+          { side: 'server', title: 'Что собрал сервер', text: data.item.message },
+          { side: 'notice', title: 'На что смотреть', text: 'Здесь не три ответа, а один общий итог после завершения потока.' },
         ],
-        'Где полезно: batch upload, телеметрия, загрузка чанков, сбор данных.'
+        'Подходит, когда маленьких сообщений много, а результат нужен один.'
       );
       markComplete('client');
       return;
     }
 
-    if (data.channel === 'client-stream-error') {
-      document.getElementById('clientStreamOutput').textContent = `Ошибка: ${data.error}`;
-      return;
-    }
-
     if (data.channel === 'bidi') {
       streamState.bidi.push(data.item.message);
-      streamState.charts.bidi.push({ label: `${streamState.bidi.length}`, value: data.item.bytes });
-      renderMiniChart('bidiChart', streamState.charts.bidi);
-      setVisualState(
+      setStory(
         'bidiOutput',
-        'Bidirectional streaming: что происходит',
-        'Клиент и сервер обмениваются сообщениями параллельно, не дожидаясь полного завершения сессии.',
+        'Bidirectional streaming: живая история',
+        'Обе стороны говорят параллельно: клиент пишет новую часть, сервер сразу отвечает.',
         [
-          { side: 'client', title: `Сообщение клиента #${streamState.bidi.length}`, text: `Клиент отправил новую часть в двусторонний поток.` },
+          { side: 'client', title: `Сообщение клиента #${streamState.bidi.length}`, text: 'Клиент отправил следующий кусок в двусторонний поток.' },
           { side: 'server', title: `Ответ сервера #${streamState.bidi.length}`, text: data.item.message },
-          { side: 'notice', title: 'Главная мысль', text: 'Это уже не схема «запрос-потом-ответ». Здесь идёт настоящий диалог в обе стороны.' },
+          { side: 'notice', title: 'На что смотреть', text: 'Это уже диалог в обе стороны, а не «сначала всё отправили, потом ждём».' },
         ],
-        'Где полезно: real-time ассистенты, игры, совместная работа, живые события.'
+        `Шагов обмена: ${streamState.bidi.length}`
       );
       return;
     }
@@ -340,70 +272,71 @@ function connectSocket() {
       markComplete('bidi');
       return;
     }
-
-    if (data.channel === 'ws-demo') {
-      const el = document.getElementById('wsOutput');
-      el.classList.remove('placeholder-box');
-      el.innerHTML += `\n• ${data.item.message}`;
-    }
   };
 }
 
 async function runUnary() {
   const payload = getPayload();
+  await loadProtoExample();
   const res = await fetch('/api/compare', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
   const data = await res.json();
-  streamState.charts.unary = [
-    { label: 'запрос', value: data.compactness.protobufBytes },
-    { label: 'ответ', value: data.grpc.bytes },
-  ];
-  renderMiniChart('unaryChart', streamState.charts.unary);
-  setVisualState(
-    'unaryOutput',
-    'Unary: что происходит',
-    'Самый простой паттерн gRPC: один запрос пришёл, один ответ ушёл.',
+
+  setStory(
+    'simpleUnaryStory',
+    'Простой unary: живая история',
+    'Это самый базовый сценарий gRPC: один запрос пришёл, один ответ ушёл.',
     [
-      { side: 'client', title: 'Действие клиента', text: `Отправил один структурированный запрос: «${payload.text}».` },
-      { side: 'server', title: 'Действие сервера', text: 'Сразу обработал запрос и вернул один полный ответ.' },
-      { side: 'notice', title: 'Главная мысль', text: `Транспорт — ${data.grpc.transport}, контракт — ${data.grpc.contract}, размер запроса — ${data.compactness.protobufBytes} байт.` },
+      { side: 'client', title: 'Что сделал клиент', text: `Отправил имя «${payload.name}» и фразу «${payload.text}».` },
+      { side: 'server', title: 'Что сделал сервер', text: `Сразу обработал запрос и вернул один ответ: ${data.grpc.bytes} Б.` },
+      { side: 'notice', title: 'Что важно понять', text: `Даже такой простой вызов уже использует ${data.grpc.transport} и контракт ${data.grpc.contract}.` },
     ],
-    'Где полезно: проверка, создание, получение данных, подтверждение одного действия.'
+    'Сначала достаточно понять именно этот базовый паттерн.'
   );
+
+  setStory(
+    'unaryOutput',
+    'Unary RPC',
+    'Один запрос → один ответ. Самый простой и самый понятный режим.',
+    [
+      { side: 'client', title: 'Что отправили', text: `Один структурированный запрос с именем ${payload.name}.` },
+      { side: 'server', title: 'Что вернул сервер', text: 'Один полный ответ без открытия потока.' },
+      { side: 'notice', title: 'Главная мысль', text: `Protobuf в этом примере занял ${data.compactness.protobufBytes} Б, JSON — ${data.compactness.jsonBytes} Б.` },
+    ],
+    'После этого можно переходить к более сложным режимам.'
+  );
+
+  renderWirePreview(payload, data);
   markComplete('unary');
 }
 
 function runServerStream() {
   streamState.server = [];
-  streamState.charts.server = [];
-  renderMiniChart('serverChart', []);
-  setVisualState(
+  setStory(
     'serverStreamOutput',
     'Server streaming: запуск',
-    'Сейчас сервер откроет один поток и начнёт отправлять несколько ответов по очереди.',
+    'Сейчас клиент отправит один запрос, а сервер начнёт присылать обновления по одному.',
     [
-      { side: 'client', title: 'Действие клиента', text: 'Клиент уже отправил один запрос на старт потока.' },
-      { side: 'server', title: 'Действие сервера', text: 'Сервер готовит несколько последовательных обновлений.' },
-      { side: 'notice', title: 'Главная мысль', text: 'Для каждого нового сообщения не нужно заново открывать новое соединение.' },
+      { side: 'client', title: 'Что сделал клиент', text: 'Один раз открыл поток запроса.' },
+      { side: 'server', title: 'Что сделает сервер', text: 'Пришлёт несколько ответов подряд в том же соединении.' },
+      { side: 'notice', title: 'На что смотреть', text: 'Новые ответы будут появляться без нового запроса со стороны клиента.' },
     ]
   );
   socket.send(JSON.stringify({ type: 'grpc-server-stream', ...getPayload() }));
 }
 
 function runClientStream() {
-  streamState.charts.client = [];
-  renderMiniChart('clientChart', []);
-  setVisualState(
+  setStory(
     'clientStreamOutput',
     'Client streaming: запуск',
-    'Сейчас клиент отправит несколько частей, а сервер дождётся конца потока и ответит один раз.',
+    'Сейчас клиент будет отправлять части, а сервер подождёт и соберёт их в один результат.',
     [
-      { side: 'client', title: 'Действие клиента', text: 'Подготавливает три части для одного исходящего потока.' },
-      { side: 'server', title: 'Действие сервера', text: 'Ждёт завершения потока, чтобы потом собрать один итоговый ответ.' },
-      { side: 'notice', title: 'Главная мысль', text: 'Много входящих сообщений всё ещё могут привести к одному чистому ответу.' },
+      { side: 'client', title: 'Что сделает клиент', text: 'Отправит три части в одном исходящем потоке.' },
+      { side: 'server', title: 'Что сделает сервер', text: 'Ничего не вернёт до конца потока, а потом выдаст общий итог.' },
+      { side: 'notice', title: 'На что смотреть', text: 'Это обратная логика по сравнению с server streaming.' },
     ]
   );
   socket.send(JSON.stringify({ type: 'grpc-client-stream', ...getPayload() }));
@@ -411,26 +344,94 @@ function runClientStream() {
 
 function runBidi() {
   streamState.bidi = [];
-  streamState.charts.bidi = [];
-  renderMiniChart('bidiChart', []);
-  setVisualState(
+  setStory(
     'bidiOutput',
     'Bidirectional streaming: запуск',
-    'Открывается двусторонний канал, в котором обе стороны могут говорить параллельно.',
+    'Сейчас начнётся живой двусторонний обмен сообщениями.',
     [
-      { side: 'client', title: 'Действие клиента', text: 'Открывает duplex stream и начинает отправлять первую часть.' },
-      { side: 'server', title: 'Действие сервера', text: 'Готов отвечать сразу по мере поступления новых частей.' },
-      { side: 'notice', title: 'Главная мысль', text: 'Это уже полноценный живой обмен, а не просто «запрос, потом ответ».' },
+      { side: 'client', title: 'Что сделает клиент', text: 'Начнёт слать части одну за другой.' },
+      { side: 'server', title: 'Что сделает сервер', text: 'Будет отвечать сразу после каждой части.' },
+      { side: 'notice', title: 'На что смотреть', text: 'Обе стороны активны одновременно.' },
     ]
   );
   socket.send(JSON.stringify({ type: 'grpc-bidi', ...getPayload() }));
 }
 
+function renderCompareTimeline(root, steps) {
+  root.innerHTML = steps.map((step, index) => `
+    <div class="compare-step ${step.done ? 'done' : ''}">
+      <div class="compare-step-index">${index + 1}</div>
+      <div class="compare-step-copy">
+        <strong>${escapeHtml(step.title)}</strong>
+        <span>${escapeHtml(step.text)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderLineChart(containerId, grpcPoints, wsPoints) {
+  const root = document.getElementById(containerId);
+  const width = 820;
+  const height = 280;
+  const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+  const max = Math.max(...grpcPoints, ...wsPoints, 1);
+  const innerW = width - padding.left - padding.right;
+  const innerH = height - padding.top - padding.bottom;
+
+  function pointSet(values) {
+    return values.map((value, index) => {
+      const x = padding.left + (innerW / Math.max(values.length - 1, 1)) * index;
+      const y = padding.top + innerH - (value / max) * innerH;
+      return { x, y, value, label: index + 1 };
+    });
+  }
+
+  const grpc = pointSet(grpcPoints);
+  const ws = pointSet(wsPoints);
+  const grpcPath = grpc.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const wsPath = ws.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+  const yTicks = 4;
+  const grid = Array.from({ length: yTicks + 1 }, (_, i) => {
+    const value = Math.round((max / yTicks) * i);
+    const y = padding.top + innerH - (i / yTicks) * innerH;
+    return { value, y };
+  });
+
+  root.innerHTML = `
+    <svg class="chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="График роста байт">
+      ${grid.map((tick) => `<line x1="${padding.left}" y1="${tick.y}" x2="${width - padding.right}" y2="${tick.y}" class="gridline" />`).join('')}
+      <line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${height - padding.bottom}" class="axis" />
+      <line x1="${padding.left}" y1="${height - padding.bottom}" x2="${width - padding.right}" y2="${height - padding.bottom}" class="axis" />
+      ${grid.map((tick) => `<text x="${padding.left - 10}" y="${tick.y + 4}" class="tick-label" text-anchor="end">${tick.value} Б</text>`).join('')}
+      ${grpc.map((p) => `<text x="${p.x}" y="${height - padding.bottom + 20}" class="tick-label" text-anchor="middle">${p.label}</text>`).join('')}
+      <path d="${grpcPath}" fill="none" stroke="#39f4df" stroke-width="4" stroke-linecap="round" />
+      <path d="${wsPath}" fill="none" stroke="#ff76ca" stroke-width="4" stroke-linecap="round" />
+      ${grpc.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#39f4df" />`).join('')}
+      ${ws.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#ff76ca" />`).join('')}
+    </svg>
+    <div class="chart-legend">
+      <span><i class="legend-dot grpc"></i>gRPC protobuf</span>
+      <span><i class="legend-dot ws"></i>WebSocket JSON</span>
+    </div>
+  `;
+}
+
 async function runCompare() {
-  const box = document.getElementById('compareTable');
-  const insight = document.getElementById('compareInsight');
+  const root = document.getElementById('compareStory');
+  const visuals = document.getElementById('compareVisuals');
+  const chartPanel = document.getElementById('compareChartPanel');
   const grpcPayloadView = document.getElementById('grpcPayloadView');
   const jsonPayloadView = document.getElementById('jsonPayloadView');
+
+  root.classList.remove('placeholder-box');
+  renderCompareTimeline(root, [
+    { title: 'Шаг 1', text: 'Берём один и тот же payload для всех трёх подходов.', done: true },
+    { title: 'Шаг 2', text: 'Сейчас посчитаем размер protobuf и JSON.', done: false },
+    { title: 'Шаг 3', text: 'Потом покажем, как выглядит payload.', done: false },
+    { title: 'Шаг 4', text: 'И в конце сравним рост трафика в потоке.', done: false },
+  ]);
+
   const res = await fetch('/api/compare', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -438,41 +439,29 @@ async function runCompare() {
   });
   const data = await res.json();
 
-  box.classList.remove('compare-placeholder');
-  box.innerHTML = `
-    <div class="compare-row header">
-      <div>Сравнение</div><div>gRPC</div><div>REST</div><div>WebSocket</div>
-    </div>
-    <div class="compare-row">
-      <div>Транспорт</div><div>${data.grpc.transport}</div><div>${data.rest.transport}</div><div>${data.websocket.transport}</div>
-    </div>
-    <div class="compare-row">
-      <div>Контракт</div><div>${data.grpc.contract}</div><div>${data.rest.contract}</div><div>${data.websocket.contract}</div>
-    </div>
-    <div class="compare-row">
-      <div>Стиль общения</div><div>Unary + потоки</div><div>Запрос / ответ</div><div>Постоянный real-time канал</div>
-    </div>
-    <div class="compare-row">
-      <div>Размер payload в этом демо</div><div>${data.compactness.protobufBytes} Б</div><div>${data.compactness.jsonBytes} Б</div><div>${data.websocket.bytes} Б</div>
-    </div>
-    <div class="compare-row">
-      <div>Где лучше всего</div><div>Микросервисы, строгие контракты, эффективность</div><div>Открытые API, CRUD, простые интеграции</div><div>Чаты, лайв-состояние, realtime</div>
-    </div>
-  `;
+  setTimeout(() => {
+    renderCompareTimeline(root, [
+      { title: 'Размер payload', text: `protobuf: ${data.compactness.protobufBytes} Б, JSON: ${data.compactness.jsonBytes} Б. Экономия: ${data.compactness.savedPercent}%.`, done: true },
+      { title: 'Где это важно', text: 'Разница особенно заметна во внутренних сервисах и потоковых сценариях.', done: true },
+      { title: 'Как выглядит payload', text: 'Ниже появляются protobuf-байты и JSON для одной и той же фразы.', done: false },
+      { title: 'Поток', text: 'После этого покажем график роста байт.', done: false },
+    ]);
+    visuals.classList.remove('hidden');
+    grpcPayloadView.textContent = data.protobufHex.join(' ');
+    jsonPayloadView.textContent = JSON.stringify(data.jsonPayload, null, 2);
+  }, 450);
 
-  grpcPayloadView.textContent = data.protobufHex.join(' ');
-  jsonPayloadView.textContent = JSON.stringify(data.jsonPayload, null, 2);
-
-  insight.innerHTML = `В этом примере Protocol Buffers уменьшил размер payload на <strong>${data.compactness.savedPercent}%</strong> по сравнению с JSON. Поэтому gRPC особенно хорошо смотрится во внутренних сервисах и потоковых сценариях.`;
-  renderLineChart('compareChart', data.streamChart.grpc, data.streamChart.websocket);
-  markComplete('compare');
-}
-
-function runWsDemo() {
-  const out = document.getElementById('wsOutput');
-  out.classList.remove('placeholder-box');
-  out.textContent = 'WebSocket demo:';
-  socket.send(JSON.stringify({ type: 'ws-demo', ...getPayload() }));
+  setTimeout(() => {
+    renderCompareTimeline(root, [
+      { title: 'Размер payload', text: `protobuf: ${data.compactness.protobufBytes} Б, JSON: ${data.compactness.jsonBytes} Б.`, done: true },
+      { title: 'Внешний вид', text: 'Protobuf — бинарные байты, JSON — читаемый текст.', done: true },
+      { title: 'Поток', text: 'Теперь видно, как разница по размеру накапливается при серии сообщений.', done: true },
+      { title: 'Вывод', text: 'REST проще для открытых API, WebSocket — для realtime, gRPC — для строгих и эффективных внутренних вызовов.', done: true },
+    ]);
+    chartPanel.classList.remove('hidden');
+    renderLineChart('compareChart', data.streamChart.grpc, data.streamChart.websocket);
+    markComplete('compare');
+  }, 900);
 }
 
 async function checkQuiz() {
@@ -489,7 +478,26 @@ async function checkQuiz() {
   ].join('<br>');
 }
 
+async function loadQuiz() {
+  const res = await fetch('/api/quiz');
+  const data = await res.json();
+  document.getElementById('quizQuestions').innerHTML = data.questions.map((item) => `
+    <div class="quiz-item">
+      <label>${item.id}. ${escapeHtml(item.question)}</label>
+      <input id="quiz-${item.id}" placeholder="Введи ответ" />
+    </div>
+  `).join('');
+}
+
+document.getElementById('studentName').addEventListener('input', () => {
+  if (progress.unary) loadProtoExample();
+});
+document.getElementById('payloadText').addEventListener('input', () => {
+  if (progress.unary) loadProtoExample();
+});
+
 renderProgress();
 loadTheory();
 loadProtoExample();
+loadQuiz();
 connectSocket();

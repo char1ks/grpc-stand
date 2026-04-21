@@ -173,8 +173,14 @@ app.get('/api/theory', (_req, res) => {
   });
 });
 
-app.get('/api/proto-inspect', (_req, res) => {
-  res.json(buildProtoInspection());
+app.get('/api/proto-inspect', (req, res) => {
+  const sample = {
+    name: String(req.query.name || DEFAULT_SAMPLE.name),
+    text: String(req.query.text || DEFAULT_SAMPLE.text),
+    count: Number(req.query.count || DEFAULT_SAMPLE.count),
+    startedAt: Number(req.query.startedAt || DEFAULT_SAMPLE.startedAt),
+  };
+  res.json(buildProtoInspection(sample));
 });
 
 app.post('/api/rest/unary', (req, res) => {
