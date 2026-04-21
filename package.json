@@ -1,16 +1,13 @@
 {
-  "name": "grpc-interactive-stand",
+  "name": "grpc-stand-full-v5",
   "version": "1.0.0",
-  "description": "Interactive gRPC teaching stand with Docker",
+  "private": true,
+  "description": "Simplified gRPC demo stand with progressive reveal",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.14.0",
-    "@grpc/proto-loader": "^0.8.0",
-    "express": "^4.21.2",
-    "protobufjs": "^7.4.0",
-    "ws": "^8.18.0"
+    "express": "^4.19.2"
   }
 }

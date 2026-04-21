@@ -1,208 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>gRPC стенд</title>
+  <title>gRPC demo stand</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="aurora"></div>
-
-  <header class="hero shell">
-    <div class="hero-copy glass soft-panel">
-      <div class="eyebrow">gRPC стенд</div>
-      <h1>Сначала <span>простая база</span>, потом более сложные режимы</h1>
-      <p>
-        Стенд открывает блоки постепенно: сначала обычный unary-вызов, потом потоки,
-        потом живое сравнение gRPC, REST и WebSocket.
-      </p>
-      <div class="hero-actions">
-        <button class="primary" onclick="scrollToSection('simple-start')">Начать с простого примера</button>
-        <button class="secondary" onclick="scrollToSection('concepts')">Открыть базу и термины</button>
-      </div>
-    </div>
-  </header>
-
+  <div class="bg-pattern"></div>
   <main class="shell">
-    <section class="section" id="concepts">
-      <div class="section-head">
-        <h2>1. База и термины</h2>
-        <p>Коротко и без перегруза: что такое gRPC и какие режимы общения вообще бывают.</p>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">gRPC stand</div>
+        <h1>Сначала простая база, потом более сложные режимы</h1>
+        <p>Здесь студент сначала понимает один простой вызов, потом видит живое сравнение gRPC и WebSocket, и только после этого открывает стриминг.</p>
       </div>
-      <div id="theoryCards" class="card-grid"></div>
     </section>
 
-    <section class="section" id="simple-start">
+    <section class="section" id="simple">
       <div class="section-head">
-        <h2>2. Сначала простой gRPC</h2>
-        <p>Берём одну фразу и одно имя, отправляем unary-вызов и смотрим, что произошло.</p>
+        <h2>1. Самый простой gRPC</h2>
+        <p>Один запрос ушёл, один ответ вернулся. Вводишь имя и фразу — стенд показывает, что реально поехало по сети.</p>
       </div>
 
-      <div class="glass control-panel simple-panel">
+      <div class="glass control-panel">
         <div class="field">
-          <label>Имя</label>
+          <label for="studentName">Имя студента</label>
           <input id="studentName" value="Алексей" />
         </div>
-        <div class="field field-wide">
-          <label>Фраза</label>
-          <input id="payloadText" value="Покажи, как работает gRPC без боли" />
-        </div>
-        <div class="inline-actions">
-          <button class="primary" onclick="runUnary()">Показать простой unary</button>
+        <div class="field">
+          <label for="studentText">Текстовое сообщение</label>
+          <input id="studentText" value="Покажи, как работает gRPC без боли" />
         </div>
       </div>
 
-      <div class="simple-grid">
-        <article class="glass story-card">
-          <h3>Что происходит в простом сценарии</h3>
-          <div id="simpleUnaryStory" class="story-stack placeholder-box">
-            Нажми кнопку выше. Здесь появится короткая понятная история: что отправил клиент,
-            что получил сервер и почему это уже gRPC, а не просто абстрактный «вызов».
-          </div>
-        </article>
-
-        <article class="glass story-card hidden" id="wirePreviewCard">
-          <h3>Что уходит по сети</h3>
-          <div id="wirePreview" class="wire-preview"></div>
-        </article>
-      </div>
-
-      <article class="glass breakdown-card hidden" id="breakdownCard">
-        <div class="card-top compact-top">
-          <h3>Как эта же фраза раскладывается в protobuf</h3>
-          <span class="badge">появляется после простого unary</span>
-        </div>
-        <div class="breakdown-simple-grid">
+      <div class="glass simple-card">
+        <div class="simple-top">
           <div>
-            <div class="mini-block">
-              <div class="mini-label">.proto контракт</div>
-              <pre id="protoCode" class="code-block compact"></pre>
-            </div>
-            <div class="mini-block">
-              <div class="mini-label">Минимальная схема</div>
-              <div id="architectureDiagram" class="architecture-diagram"></div>
-            </div>
+            <div class="kicker">Unary RPC</div>
+            <h3>1 запрос → 1 ответ</h3>
+            <p>Нажми кнопку и посмотри простой сценарий по шагам.</p>
           </div>
+          <button class="primary" id="runUnaryBtn">Запустить простой gRPC</button>
+        </div>
 
+        <div class="story-grid">
+          <div class="story-box">
+            <div class="story-kicker">Клиент</div>
+            <div class="story-title">Что отправили</div>
+            <div class="story-text" id="unaryClientText">Пока ничего не отправляли.</div>
+          </div>
+          <div class="story-box">
+            <div class="story-kicker purple">Сервер</div>
+            <div class="story-title">Что вернул сервер</div>
+            <div class="story-text" id="unaryServerText">Запусти простой вызов, чтобы увидеть ответ.</div>
+          </div>
+          <div class="story-box story-wide">
+            <div class="story-kicker pink">Что важно заметить</div>
+            <div class="story-title">Главная мысль</div>
+            <div class="story-text" id="unaryInsight">Сначала нужно понять именно этот режим. Он максимально похож на обычный API-вызов, только внутри уже HTTP/2 и protobuf.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section hidden" id="compareSection">
+      <div class="section-head">
+        <h2>2. Сравнение gRPC и WebSocket</h2>
+        <p>Сначала сравниваем только два варианта: gRPC protobuf и WebSocket с JSON. Без REST и без перегруза.</p>
+      </div>
+
+      <div class="glass compare-main">
+        <div class="compare-header">
           <div>
-            <div class="mini-block">
-              <div class="mini-label">Поля текущего сообщения</div>
-              <div id="liveFieldBreakdown" class="live-field-breakdown"></div>
+            <div class="kicker">Сначала сравнение</div>
+            <h3>Один и тот же смысл, но разная упаковка сообщений</h3>
+          </div>
+          <button class="primary" id="runCompareBtn">Запустить сравнение</button>
+        </div>
+
+        <div class="compare-hero" id="compareHero">
+          <div class="compare-column grpc">
+            <div class="compare-label">gRPC / protobuf</div>
+            <div class="compare-number" id="grpcBytes">—</div>
+            <div class="compare-sub">размер первого сообщения</div>
+          </div>
+          <div class="compare-vs">vs</div>
+          <div class="compare-column ws">
+            <div class="compare-label">WebSocket / JSON</div>
+            <div class="compare-number" id="wsBytes">—</div>
+            <div class="compare-sub">размер первого сообщения</div>
+          </div>
+        </div>
+
+        <div class="timeline" id="timeline">
+          <div class="timeline-item">
+            <div class="timeline-step">1</div>
+            <div>
+              <div class="timeline-title">Размер первого сообщения</div>
+              <div class="timeline-text">Запусти сравнение, чтобы увидеть реальные числа.</div>
             </div>
-            <div class="mini-block">
-              <div class="mini-label">Размер и смысл</div>
-              <div id="protoSummary" class="summary-strip"></div>
-              <div id="byteBreakdown" class="byte-list"></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-step">2</div>
+            <div>
+              <div class="timeline-title">Как выглядит payload</div>
+              <div class="timeline-text">Слева бинарная форма protobuf, справа JSON для WebSocket.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-step">3</div>
+            <div>
+              <div class="timeline-title">Что будет в потоке</div>
+              <div class="timeline-text">На серии сообщений разница начинает копиться.</div>
             </div>
           </div>
         </div>
-      </article>
-    </section>
 
-    <section class="section" id="interactive">
-      <div class="section-head">
-        <h2>3. Живой интерактив</h2>
-        <p>Блоки открываются по мере прохождения: сначала unary, потом server streaming, потом client streaming, потом bidi.</p>
-      </div>
-
-      <div class="progress-strip glass" id="interactiveProgress"></div>
-
-      <div class="demo-grid progressive-grid">
-        <article class="glass demo-card" id="unaryCard">
-          <div class="demo-topline">
-            <span class="demo-type">Unary RPC</span>
-            <span class="demo-flow">один запрос → один ответ</span>
+        <div class="compare-panels">
+          <div class="payload-card">
+            <div class="payload-title">Как выглядит gRPC payload</div>
+            <pre class="payload-box" id="grpcPayloadBox">Сначала запусти сравнение.</pre>
           </div>
-          <p>Самый понятный старт: один запрос пришёл, один ответ ушёл.</p>
-          <button class="primary" onclick="runUnary()">Запустить unary</button>
-          <div id="unaryOutput" class="visual-output placeholder-box">Сначала пройди простой unary выше или нажми эту кнопку.</div>
-        </article>
-
-        <article class="glass demo-card hidden" id="serverCard">
-          <div class="demo-topline">
-            <span class="demo-type">Server streaming</span>
-            <span class="demo-flow">один запрос → несколько ответов</span>
+          <div class="payload-card">
+            <div class="payload-title">Как выглядит JSON для WebSocket</div>
+            <pre class="payload-box" id="wsPayloadBox">Сначала запусти сравнение.</pre>
           </div>
-          <p>Когда серверу удобно присылать обновления частями, не закрывая соединение.</p>
-          <button class="primary" onclick="runServerStream()">Показать поток сервера</button>
-          <div id="serverStreamOutput" class="visual-output placeholder-box">Этот блок открылся после unary.</div>
-        </article>
+        </div>
 
-        <article class="glass demo-card hidden" id="clientCard">
-          <div class="demo-topline">
-            <span class="demo-type">Client streaming</span>
-            <span class="demo-flow">несколько сообщений → один итог</span>
+        <div class="chart-card">
+          <div class="chart-head">
+            <div class="payload-title">Как копится размер сообщений</div>
+            <div class="chart-note">Динамический график: серия из 5 сообщений</div>
           </div>
-          <p>Клиент отправляет части, а сервер молчит до самого конца и потом даёт общий результат.</p>
-          <button class="primary" onclick="runClientStream()">Показать поток клиента</button>
-          <div id="clientStreamOutput" class="visual-output placeholder-box">Этот блок откроется после server streaming.</div>
-        </article>
-
-        <article class="glass demo-card hidden" id="bidiCard">
-          <div class="demo-topline">
-            <span class="demo-type">Bidirectional streaming</span>
-            <span class="demo-flow">обмен в обе стороны</span>
+          <div class="chart-stage">
+            <svg viewBox="0 0 760 260" class="chart-svg" id="compareChart" aria-label="chart"></svg>
           </div>
-          <p>Обе стороны могут говорить одновременно — это уже не просто «запрос, потом ответ».</p>
-          <button class="primary" onclick="runBidi()">Показать bidi</button>
-          <div id="bidiOutput" class="visual-output placeholder-box">Этот блок откроется после client streaming.</div>
-        </article>
+        </div>
       </div>
     </section>
 
-    <section class="section hidden" id="compare">
+    <section class="section hidden" id="breakdownSection">
       <div class="section-head">
-        <h2>4. Живая история сравнения</h2>
-        <p>Один и тот же payload: сначала размер, потом внешний вид, потом рост трафика в потоке.</p>
+        <h2>3. Что реально уходит по сети</h2>
+        <p>Не абстрактный пример из книги, а разбор именно твоего имени и твоей фразы.</p>
       </div>
 
-      <div class="compare-wrap glass">
-        <div class="compare-actions">
-          <button class="primary" onclick="runCompare()">Запустить историю сравнения</button>
-        </div>
-
-        <div id="compareStory" class="compare-story placeholder-box">
-          После простого unary этот блок станет доступен. Потом сравнение будет разворачиваться шаг за шагом.
-        </div>
-
-        <div class="compare-visuals hidden" id="compareVisuals">
-          <article class="payload-box">
-            <h3>Protobuf payload</h3>
-            <pre id="grpcPayloadView" class="code-block compact"></pre>
-          </article>
-          <article class="payload-box">
-            <h3>JSON payload</h3>
-            <pre id="jsonPayloadView" class="code-block compact"></pre>
-          </article>
-        </div>
-
-        <article class="chart-panel hidden" id="compareChartPanel">
-          <div class="card-top compact-top">
-            <h3>Как растут байты при потоке</h3>
-            <span class="chart-note">gRPC protobuf vs WebSocket JSON</span>
+      <div class="double-grid">
+        <div class="glass proto-card">
+          <div class="card-head">
+            <h3>.proto контракт</h3>
           </div>
-          <div id="compareChart" class="line-chart"></div>
-        </article>
+          <pre class="payload-box compact" id="protoBox"></pre>
+        </div>
+
+        <div class="glass bytes-card">
+          <div class="card-head">
+            <h3>Побайтовый разбор protobuf</h3>
+            <button class="secondary small" id="decodeBtn">Показать разбор</button>
+          </div>
+          <div class="byte-chip-grid" id="byteChips"></div>
+          <div class="byte-summary">
+            <div class="summary-box">
+              <div class="kicker">Пример поля name</div>
+              <strong id="summaryName">—</strong>
+            </div>
+            <div class="summary-box">
+              <div class="kicker">Пример поля text</div>
+              <strong id="summaryText">—</strong>
+            </div>
+            <div class="summary-box">
+              <div class="kicker">protobuf размер</div>
+              <strong id="summaryProtoBytes">—</strong>
+            </div>
+            <div class="summary-box">
+              <div class="kicker">JSON размер</div>
+              <strong id="summaryJsonBytes">—</strong>
+            </div>
+          </div>
+          <div class="byte-table" id="byteTable"></div>
+        </div>
       </div>
     </section>
 
-    <section class="section hidden" id="quizSection">
+    <section class="section hidden" id="advancedSection">
       <div class="section-head">
-        <h2>5. Финальная викторина</h2>
+        <h2>4. Более сложные режимы gRPC</h2>
+        <p>Эти блоки появляются только после того, как пользователь прошёл базу и понял простое сравнение.</p>
       </div>
-      <div class="glass quiz-box">
-        <div id="quizQuestions"></div>
-        <button class="primary" onclick="checkQuiz()">Проверить ответы</button>
-        <div id="quizResult" class="output"></div>
+
+      <div class="advanced-grid">
+        <div class="glass advanced-card">
+          <div class="advanced-top">
+            <div>
+              <h3>Server streaming</h3>
+              <p>Один запрос, потом сервер присылает несколько обновлений.</p>
+            </div>
+            <button class="primary small" id="serverStreamBtn">Показать историю</button>
+          </div>
+          <div class="history-list" id="serverStreamHistory">
+            <div class="history-empty">Сначала нужно пройти простое сравнение.</div>
+          </div>
+        </div>
+
+        <div class="glass advanced-card">
+          <div class="advanced-top">
+            <div>
+              <h3>Client streaming</h3>
+              <p>Клиент отправляет несколько частей, сервер собирает один итог.</p>
+            </div>
+            <button class="primary small" id="clientStreamBtn">Показать историю</button>
+          </div>
+          <div class="history-list" id="clientStreamHistory">
+            <div class="history-empty">Сначала нужно пройти простое сравнение.</div>
+          </div>
+        </div>
+
+        <div class="glass advanced-card wide">
+          <div class="advanced-top">
+            <div>
+              <h3>Bidirectional streaming</h3>
+              <p>Обе стороны обмениваются сообщениями параллельно, как диалог.</p>
+            </div>
+            <button class="primary small" id="bidiBtn">Показать историю</button>
+          </div>
+          <div class="history-list" id="bidiHistory">
+            <div class="history-empty">Сначала нужно пройти простое сравнение.</div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
-  <div id="unlockToast" class="unlock-toast hidden">Открылись новые блоки: можно идти дальше.</div>
   <script src="/app.js"></script>
 </body>
 </html>
