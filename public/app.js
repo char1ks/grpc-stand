@@ -2,6 +2,8 @@ const state = {
   unaryDone: false,
   compareDone: false,
   decoded: false,
+  compareTimer: null,
+  compareTick: 0,
 };
 
 const els = {
@@ -151,7 +153,7 @@ function renderTimeline(payload){
       <div class="timeline-step">3</div>
       <div>
         <div class="timeline-title">Почему график динамический</div>
-        <div class="timeline-text">На серии сообщений видно, как разница по объёму начинает накапливаться.</div>
+        <div class="timeline-text">График не ограничен пятью точками: каждую секунду добавляется ещё одно сообщение, и видно, как расходятся линии.</div>
       </div>
     </div>
   `;
@@ -199,13 +201,14 @@ function renderCompare(){
   const wsJson = JSON.stringify(payload.json, null, 2);
   const wsBytes = encoder.encode(wsJson).length;
   state.compareDone = true;
+  hideDecode();
 
   els.grpcBytes.textContent = `${grpcBytes} Б`;
   els.wsBytes.textContent = `${wsBytes} Б`;
   els.grpcPayloadBox.textContent = payload.protobufHex;
   els.wsPayloadBox.textContent = wsJson;
   renderTimeline(payload);
-  renderChart(payload);
+  startCompareTimeline(payload);
 
   els.summaryName.textContent = name;
   els.summaryText.textContent = text;
@@ -216,6 +219,8 @@ function renderCompare(){
 }
 
 function decodePayload(){
+  state.decoded = true;
+  els.decodeBtn.textContent = 'Скрыть разбор';
   const name = els.studentName.value.trim() || 'Алексей';
   const text = els.studentText.value.trim() || 'Покажи, как работает gRPC без боли';
   const payload = buildPayload(name, text);
@@ -246,6 +251,58 @@ function decodePayload(){
       <div>${escapeHtml(r.meaning)}</div>
     </div>
   `).join('');
+}
+
+
+function hideDecode(){
+  state.decoded = false;
+  els.decodeBtn.textContent = 'Показать разбор';
+  els.byteChips.innerHTML = '';
+  els.byteTable.innerHTML = '';
+}
+
+function startCompareTimeline(payload){
+  if (state.compareTimer) clearInterval(state.compareTimer);
+  state.compareTick = 0;
+
+  const svg = els.compareChart;
+  const grpcUnit = payload.protobuf.length;
+  const wsUnit = encoder.encode(JSON.stringify(payload.json)).length;
+
+  function renderStreamingChart(tick){
+    const seconds = Math.max(1, tick);
+    const grpcSeries = Array.from({length: seconds}, (_, i) => grpcUnit * (i + 1));
+    const wsSeries = Array.from({length: seconds}, (_, i) => wsUnit * (i + 1));
+    const max = Math.max(...grpcSeries, ...wsSeries);
+
+    const pad = {l: 54, r: 16, t: 18, b: 34};
+    const w = 760, h = 260, innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+    const x = i => pad.l + (seconds === 1 ? 0 : (innerW / (seconds - 1)) * i);
+    const y = val => pad.t + innerH - (val / max) * innerH;
+    function poly(series){ return series.map((v,i) => `${x(i)},${y(v)}`).join(' '); }
+    const yTicks = [0, Math.round(max*0.25), Math.round(max*0.5), Math.round(max*0.75), max];
+
+    svg.innerHTML = `
+      <rect x="0" y="0" width="${w}" height="${h}" rx="18" fill="transparent"></rect>
+      ${yTicks.map(v => `<line x1="${pad.l}" y1="${y(v)}" x2="${w-pad.r}" y2="${y(v)}" stroke="rgba(255,255,255,.08)" />`).join('')}
+      <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h-pad.b}" stroke="rgba(255,255,255,.18)" />
+      <line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="rgba(255,255,255,.18)" />
+      ${yTicks.map(v => `<text x="12" y="${y(v)+4}" fill="rgba(255,255,255,.62)" font-size="12" font-family="Inter">${v} Б</text>`).join('')}
+      ${Array.from({length: seconds}, (_, i) => `<text x="${x(i)-8}" y="${h-10}" fill="rgba(255,255,255,.62)" font-size="12" font-family="Inter">${i+1}с</text>`).join('')}
+      <polyline fill="none" stroke="#44f0e1" stroke-width="4" points="${poly(grpcSeries)}"></polyline>
+      <polyline fill="none" stroke="#ff79c9" stroke-width="4" points="${poly(wsSeries)}"></polyline>
+      ${grpcSeries.map((v,i) => `<circle cx="${x(i)}" cy="${y(v)}" r="5" fill="#44f0e1"></circle>`).join('')}
+      ${wsSeries.map((v,i) => `<circle cx="${x(i)}" cy="${y(v)}" r="5" fill="#ff79c9"></circle>`).join('')}
+      <text x="${pad.l}" y="14" fill="#44f0e1" font-size="12" font-family="Inter">gRPC protobuf</text>
+      <text x="${pad.l+120}" y="14" fill="#ff79c9" font-size="12" font-family="Inter">WebSocket JSON</text>
+    `;
+  }
+
+  renderStreamingChart(1);
+  state.compareTimer = setInterval(() => {
+    state.compareTick += 1;
+    renderStreamingChart(state.compareTick + 1);
+  }, 1000);
 }
 
 function renderHistory(target, items){
@@ -290,7 +347,13 @@ function showBidi(){
 
 els.runUnaryBtn.addEventListener('click', renderUnary);
 els.runCompareBtn.addEventListener('click', renderCompare);
-els.decodeBtn.addEventListener('click', decodePayload);
+els.decodeBtn.addEventListener('click', () => {
+  if (state.decoded) {
+    hideDecode();
+  } else {
+    decodePayload();
+  }
+});
 els.serverStreamBtn.addEventListener('click', showServerStream);
 els.clientStreamBtn.addEventListener('click', showClientStream);
 els.bidiBtn.addEventListener('click', showBidi);
@@ -299,14 +362,14 @@ els.studentName.addEventListener('input', () => {
   if (state.unaryDone) renderUnary();
   if (state.compareDone) {
     renderCompare();
-    if (els.byteTable.innerHTML.trim()) decodePayload();
+    if (state.decoded) decodePayload();
   }
 });
 els.studentText.addEventListener('input', () => {
   if (state.unaryDone) renderUnary();
   if (state.compareDone) {
     renderCompare();
-    if (els.byteTable.innerHTML.trim()) decodePayload();
+    if (state.decoded) decodePayload();
   }
 });
 
