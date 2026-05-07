@@ -221,8 +221,8 @@ function renderCompare(){
 function decodePayload(){
   state.decoded = true;
   els.decodeBtn.textContent = 'Скрыть разбор';
-  const name = els.studentName.value.trim() || 'Алексей';
-  const text = els.studentText.value.trim() || 'Покажи, как работает gRPC без боли';
+  const name = els.studentName?.value?.trim() || 'Алексей';
+  const text = els.studentText?.value?.trim() || 'Покажи, как работает gRPC без боли';
   const payload = buildPayload(name, text);
   const nameBytes = Array.from(encoder.encode(name));
   const textBytes = Array.from(encoder.encode(text));
