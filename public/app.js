@@ -194,8 +194,8 @@ function renderChart(payload){
 }
 
 function renderCompare(){
-  const name = els.studentName.value.trim() || 'Алексей';
-  const text = els.studentText.value.trim() || 'Покажи, как работает gRPC без боли';
+  const name = els.studentName?.value?.trim() || 'Алексей';
+  const text = els.studentText?.value?.trim() || 'Покажи, как работает gRPC без боли';
   const payload = buildPayload(name, text);
   const grpcBytes = payload.protobuf.length;
   const wsJson = JSON.stringify(payload.json, null, 2);
