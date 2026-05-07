@@ -20,57 +20,9 @@
       </div>
     </section>
 
-    <section class="section" id="simple">
-      <div class="section-head">
-        <h2>1. Самый простой gRPC</h2>
-        <p>Один запрос ушёл, один ответ вернулся. Вводишь имя и фразу — стенд показывает, что реально поехало по сети.</p>
-      </div>
-
-      <div class="glass control-panel">
-        <div class="field">
-          <label for="studentName">Имя студента</label>
-          <input id="studentName" value="Алексей" />
-        </div>
-        <div class="field">
-          <label for="studentText">Текстовое сообщение</label>
-          <input id="studentText" value="Покажи, как работает gRPC без боли" />
-        </div>
-      </div>
-
-      <div class="glass simple-card">
-        <div class="simple-top">
-          <div>
-            <div class="kicker">Unary RPC</div>
-            <h3>1 запрос → 1 ответ</h3>
-            <p>Нажми кнопку и посмотри простой сценарий по шагам.</p>
-          </div>
-          <button class="primary" id="runUnaryBtn">Запустить простой gRPC</button>
-        </div>
-
-        <div class="story-grid">
-          <div class="story-box">
-            <div class="story-kicker">Клиент</div>
-            <div class="story-title">Что отправили</div>
-            <div class="story-text" id="unaryClientText">Пока ничего не отправляли.</div>
-          </div>
-          <div class="story-box">
-            <div class="story-kicker purple">Сервер</div>
-            <div class="story-title">Что вернул сервер</div>
-            <div class="story-text" id="unaryServerText">Запусти простой вызов, чтобы увидеть ответ.</div>
-          </div>
-          <div class="story-box story-wide">
-            <div class="story-kicker pink">Что важно заметить</div>
-            <div class="story-title">Главная мысль</div>
-            <div class="story-text" id="unaryInsight">Сначала нужно понять именно этот режим. Он максимально похож на обычный API-вызов, только внутри уже HTTP/2 и protobuf.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section class="section hidden" id="compareSection">
       <div class="section-head">
         <h2>2. Сравнение gRPC и WebSocket</h2>
-        <p>Сначала сравниваем только два варианта: gRPC protobuf и WebSocket с JSON. Без REST и без перегруза.</p>
       </div>
 
       <div class="glass compare-main">
@@ -185,53 +137,6 @@
       </div>
     </section>
 
-    <section class="section hidden" id="advancedSection">
-      <div class="section-head">
-        <h2>4. Более сложные режимы gRPC</h2>
-        <p>Эти блоки появляются только после того, как пользователь прошёл базу и понял простое сравнение.</p>
-      </div>
-
-      <div class="advanced-grid">
-        <div class="glass advanced-card">
-          <div class="advanced-top">
-            <div>
-              <h3>Server streaming</h3>
-              <p>Один запрос, потом сервер присылает несколько обновлений.</p>
-            </div>
-            <button class="primary small" id="serverStreamBtn">Показать историю</button>
-          </div>
-          <div class="history-list" id="serverStreamHistory">
-            <div class="history-empty">Сначала нужно пройти простое сравнение.</div>
-          </div>
-        </div>
-
-        <div class="glass advanced-card">
-          <div class="advanced-top">
-            <div>
-              <h3>Client streaming</h3>
-              <p>Клиент отправляет несколько частей, сервер собирает один итог.</p>
-            </div>
-            <button class="primary small" id="clientStreamBtn">Показать историю</button>
-          </div>
-          <div class="history-list" id="clientStreamHistory">
-            <div class="history-empty">Сначала нужно пройти простое сравнение.</div>
-          </div>
-        </div>
-
-        <div class="glass advanced-card wide">
-          <div class="advanced-top">
-            <div>
-              <h3>Bidirectional streaming</h3>
-              <p>Обе стороны обмениваются сообщениями параллельно, как диалог.</p>
-            </div>
-            <button class="primary small" id="bidiBtn">Показать историю</button>
-          </div>
-          <div class="history-list" id="bidiHistory">
-            <div class="history-empty">Сначала нужно пройти простое сравнение.</div>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <script src="/app.js"></script>
