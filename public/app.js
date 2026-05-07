@@ -71,7 +71,7 @@ function encodeFieldInt(fieldNo, value){
 
 function buildPayload(name, text){
   const count = 3;
-  const startedAt = 1337;
+  const startedAt = Math.floor(Date.now() / 1000);
   const bytes = [
     ...encodeFieldString(1, name),
     ...encodeFieldString(2, text),
@@ -234,7 +234,7 @@ function decodePayload(){
     {hex:textBytes.length.toString(16).padStart(2,'0'), field:'длина text', meaning:`Следующие ${textBytes.length} байт относятся к тексту.`},
     {hex:toHex(textBytes), field:'значение text', meaning:`UTF-8 байты строки "${text}".`},
     {hex:'18 03', field:'count', meaning:'Поле №3, varint, значение = 3.'},
-    {hex:'20 b9 0a', field:'startedAt', meaning:'Поле №4, varint, значение = 1337.'},
+    {hex:`20 ${toHex(encodeVarint(startedAt))}`, field:'startedAt', meaning:`Поле №4, varint, значение = ${startedAt}.`},
   ];
 
   els.byteChips.innerHTML = rows.slice(0,6).map(r => `
