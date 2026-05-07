@@ -213,7 +213,7 @@ function renderCompare(){
   els.summaryName.textContent = name;
   els.summaryText.textContent = text;
   els.summaryProtoBytes.textContent = `${grpcBytes} Б`;
-  els.summaryJsonBytes.textContent = `${wsBytes} Б`;
+  if (els.summaryJsonBytes) els.summaryJsonBytes.textContent = `${wsBytes} Б`;
 
   if (els.advancedSection) els.advancedSection.classList.remove('hidden');
 }
