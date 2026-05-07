@@ -224,6 +224,7 @@ function decodePayload(){
   const name = els.studentName?.value?.trim() || 'Алексей';
   const text = els.studentText?.value?.trim() || 'Покажи, как работает gRPC без боли';
   const payload = buildPayload(name, text);
+  const { startedAt } = payload;
   const nameBytes = Array.from(encoder.encode(name));
   const textBytes = Array.from(encoder.encode(text));
   const rows = [
