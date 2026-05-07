@@ -215,7 +215,7 @@ function renderCompare(){
   els.summaryProtoBytes.textContent = `${grpcBytes} Б`;
   els.summaryJsonBytes.textContent = `${wsBytes} Б`;
 
-  els.advancedSection.classList.remove('hidden');
+  if (els.advancedSection) els.advancedSection.classList.remove('hidden');
 }
 
 function decodePayload(){
@@ -345,8 +345,8 @@ function showBidi(){
   ]);
 }
 
-els.runUnaryBtn.addEventListener('click', renderUnary);
-els.runCompareBtn.addEventListener('click', renderCompare);
+if (els.runUnaryBtn) els.runUnaryBtn.addEventListener('click', renderUnary);
+if (els.runCompareBtn) els.runCompareBtn.addEventListener('click', renderCompare);
 els.decodeBtn.addEventListener('click', () => {
   if (state.decoded) {
     hideDecode();
@@ -354,23 +354,27 @@ els.decodeBtn.addEventListener('click', () => {
     decodePayload();
   }
 });
-els.serverStreamBtn.addEventListener('click', showServerStream);
-els.clientStreamBtn.addEventListener('click', showClientStream);
-els.bidiBtn.addEventListener('click', showBidi);
+if (els.serverStreamBtn) els.serverStreamBtn.addEventListener('click', showServerStream);
+if (els.clientStreamBtn) els.clientStreamBtn.addEventListener('click', showClientStream);
+if (els.bidiBtn) els.bidiBtn.addEventListener('click', showBidi);
 
-els.studentName.addEventListener('input', () => {
-  if (state.unaryDone) renderUnary();
-  if (state.compareDone) {
-    renderCompare();
-    if (state.decoded) decodePayload();
-  }
-});
-els.studentText.addEventListener('input', () => {
-  if (state.unaryDone) renderUnary();
-  if (state.compareDone) {
-    renderCompare();
-    if (state.decoded) decodePayload();
-  }
-});
+if (els.studentName) {
+  els.studentName.addEventListener('input', () => {
+    if (state.unaryDone) renderUnary();
+    if (state.compareDone) {
+      renderCompare();
+      if (state.decoded) decodePayload();
+    }
+  });
+}
+if (els.studentText) {
+  els.studentText.addEventListener('input', () => {
+    if (state.unaryDone) renderUnary();
+    if (state.compareDone) {
+      renderCompare();
+      if (state.decoded) decodePayload();
+    }
+  });
+}
 
 els.protoBox.textContent = protoText();
