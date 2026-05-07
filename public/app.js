@@ -302,6 +302,9 @@ function startCompareTimeline(payload){
   state.compareTimer = setInterval(() => {
     state.compareTick += 1;
     renderStreamingChart(state.compareTick + 1);
+    if (state.compareTick >= 9) {
+      clearInterval(state.compareTimer);
+    }
   }, 1000);
 }
 
