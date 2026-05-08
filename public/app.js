@@ -19,6 +19,7 @@ const els = {
   wsBytes: document.getElementById('wsBytes'),
   grpcPayloadBox: document.getElementById('grpcPayloadBox'),
   wsPayloadBox: document.getElementById('wsPayloadBox'),
+  wsBytesBox: document.getElementById('wsBytesBox'),
   compareChart: document.getElementById('compareChart'),
   timeline: document.getElementById('timeline'),
   breakdownSection: document.getElementById('breakdownSection'),
@@ -207,6 +208,7 @@ function renderCompare(){
   els.wsBytes.textContent = `${wsBytes} Б`;
   els.grpcPayloadBox.textContent = payload.protobufHex;
   els.wsPayloadBox.textContent = wsJson;
+  if (els.wsBytesBox) els.wsBytesBox.textContent = toHex(Array.from(encoder.encode(wsJson)));
   renderTimeline(payload);
   startCompareTimeline(payload);
 

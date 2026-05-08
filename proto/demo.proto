@@ -17,8 +17,5 @@ message DemoReply {
 }
 
 service DemoService {
-  rpc UnaryHello (DemoRequest) returns (DemoReply);
-  rpc ServerStream (DemoRequest) returns (stream DemoReply);
-  rpc ClientStream (stream DemoRequest) returns (DemoReply);
   rpc BidiStream (stream DemoRequest) returns (stream DemoReply);
 }
