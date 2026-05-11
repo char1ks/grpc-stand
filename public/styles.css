@@ -328,3 +328,35 @@ button.small{padding:10px 14px;font-size:13px}
 .chart-card{
   margin-top: 16px;
 }
+.response-card{
+  margin-top: 16px;
+  padding: 18px;
+}
+.response-list{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.response-item{
+  padding:14px 16px;
+  border-radius:18px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(68,240,225,.1);
+  animation: fadeIn .3s ease;
+}
+.response-text{
+  font-size:16px;
+  line-height:1.4;
+  color:var(--text);
+}
+.response-empty{
+  padding:16px;
+  border-radius:16px;
+  border:1px dashed rgba(68,240,225,.16);
+  background:rgba(255,255,255,.02);
+  color:var(--muted);
+}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}

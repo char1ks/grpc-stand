@@ -21,6 +21,7 @@ const els = {
   wsPayloadBox: document.getElementById('wsPayloadBox'),
   wsBytesBox: document.getElementById('wsBytesBox'),
   compareChart: document.getElementById('compareChart'),
+  responseList: document.getElementById('responseList'),
   timeline: document.getElementById('timeline'),
   breakdownSection: document.getElementById('breakdownSection'),
   protoBox: document.getElementById('protoBox'),
@@ -48,6 +49,30 @@ function escapeHtml(str){
 
 function toHex(bytes){
   return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join(' ');
+}
+
+function formatDate(timestamp){
+  const date = new Date(timestamp * 1000);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(-2);
+  return `${day}.${month}.${year}`;
+}
+
+function addResponse(name, timestamp){
+  const responseList = els.responseList;
+  if (!responseList) return;
+  
+  // Remove empty message if present
+  const emptyMsg = responseList.querySelector('.response-empty');
+  if (emptyMsg) emptyMsg.remove();
+  
+  const responseDiv = document.createElement('div');
+  responseDiv.className = 'response-item';
+  responseDiv.innerHTML = `
+    <div class="response-text">Response to "${name}" ${formatDate(timestamp)}</div>
+  `;
+  responseList.appendChild(responseDiv);
 }
 
 function encodeVarint(num){
@@ -268,6 +293,13 @@ function startCompareTimeline(payload){
   const svg = els.compareChart;
   const grpcUnit = payload.protobuf.length;
   const wsUnit = encoder.encode(JSON.stringify(payload.json)).length;
+  const name = payload.json.name;
+  const startedAt = payload.json.startedAt;
+
+  // Clear response list
+  if (els.responseList) {
+    els.responseList.innerHTML = '<div class="response-empty">Запусти сравнение, чтобы увидеть ответы.</div>';
+  }
 
   function renderStreamingChart(tick){
     const seconds = Math.max(1, tick);
@@ -302,6 +334,8 @@ function startCompareTimeline(payload){
   state.compareTimer = setInterval(() => {
     state.compareTick += 1;
     renderStreamingChart(state.compareTick + 1);
+    // Add response for each tick to simulate bidirectional streaming
+    addResponse(name, startedAt + state.compareTick);
     if (state.compareTick >= 9) {
       clearInterval(state.compareTimer);
     }
