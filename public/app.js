@@ -70,7 +70,7 @@ function addResponse(name, timestamp){
   const responseDiv = document.createElement('div');
   responseDiv.className = 'response-item';
   responseDiv.innerHTML = `
-    <div class="response-text">Response to "${name}" ${formatDate(timestamp)}</div>
+    <div class="response-text">Response to "${name}" ${timestamp}</div>
   `;
   responseList.appendChild(responseDiv);
 }
@@ -120,22 +120,19 @@ function protoText(){
 
 package demo;
 
-message DemoRequest {
+message Request {
   string name = 1;
   string text = 2;
   int32 count = 3;
   int64 startedAt = 4;
 }
 
-message DemoReply {
-  string protocol = 1;
-  string message = 2;
-  int64 timestamp = 3;
-  int32 bytes = 4;
+message Reply {
+  string message = 1;
 }
 
-service DemoService {
-  rpc BidiStream (stream DemoRequest) returns (stream DemoReply);
+service Service {
+  rpc BidiStream (stream Request) returns (stream Reply);
 }`;
 }
 
