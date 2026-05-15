@@ -51,12 +51,17 @@ function toHex(bytes){
   return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join(' ');
 }
 
-function formatDate(timestamp){
+function formatMoscowDate(timestamp){
   const date = new Date(timestamp * 1000);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = String(date.getFullYear()).slice(-2);
-  return `${day}.${month}.${year}`;
+  return date.toLocaleString('ru-RU', {
+    timeZone: 'Europe/Moscow',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 }
 
 function addResponse(name, timestamp){
@@ -70,7 +75,7 @@ function addResponse(name, timestamp){
   const responseDiv = document.createElement('div');
   responseDiv.className = 'response-item';
   responseDiv.innerHTML = `
-    <div class="response-text">Response to "${name}" ${timestamp}</div>
+    <div class="response-text">Response to "${name}" ${formatMoscowDate(timestamp)}</div>
   `;
   responseList.appendChild(responseDiv);
 }
